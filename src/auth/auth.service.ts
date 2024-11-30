@@ -357,29 +357,40 @@ export class AuthService {
     };
   }
 
-  async changeMail({
-    verifyData,
-    newEmail,
-  }: {
-    verifyData: string | userType;
-    newEmail: string;
-    type: 'signup' | 'updateInfo';
-  }) {
-    let oldEmail: string;
+  async changeMail(verifyData: string | userType, newEmail: string) {
     if (typeof verifyData == 'string') {
-      const { email } = this.jwtService.verify(verifyData, {
+      const { _id } = this.jwtService.verify(verifyData, {
         secret: this.configService.get<string>('TOKEN_SIGNUP'),
       });
-      oldEmail = email;
+
+      verifyData = (await this.userModel.findById(_id)) as userType;
     }
 
-    const user = await this.userModel.findOne({ email: newEmail });
+    const isEmailExist = await this.userModel.findOne({ email: newEmail });
 
-    if (user) {
+    if (isEmailExist) {
       throw new ConflictException('email is already exist');
     }
 
     const OTP = customAlphabet('0123456789', 5)();
+
+    const codeDetails = verifyData.authTypes.find(
+      (ele) =>
+        ele.authFor === authForOptions.CHANGE_EMAIL &&
+        ele.type === authTypes.CODE,
+    );
+
+    if (codeDetails) {
+      this.checkForSendOTPDuration(codeDetails.expireAt);
+      codeDetails.value = hashSync(OTP, 9);
+      codeDetails.expireAt = Date.now() + 10 * 60 * 1000;
+    } else {
+      verifyData.authTypes.push({
+        authFor: authForOptions.CHANGE_EMAIL,
+        type: authTypes.CODE,
+        value: hashSync(OTP, 9),
+      });
+    }
 
     await this.mailService.sendEmail({
       to: newEmail,
@@ -389,25 +400,53 @@ export class AuthService {
       `,
     });
 
-    for (const ele of user.authTypes) {
-      if (
-        ele.authFor === authForOptions.SIGNUP &&
-        ele.type === authTypes.CODE
-      ) {
-        ele.value = hashSync(OTP, 9);
-        ele.expireAt = Date.now() + 10 * 60 * 1000;
-      }
-    }
+    await verifyData.save();
 
-    await user.save();
+    const newMailToken = this.jwtService.sign(
+      { email: newEmail, _id: verifyData._id },
+      { secret: this.configService.get<string>('TOKEN_SIGNUP') },
+    );
 
     return {
       message: 'Email Sended',
+      token: newMailToken,
       status: true,
     };
   }
 
-  async confirmUpdatedMail() {}
+  async confirmUpdateMail(token: string, otp: string) {
+    const { email, _id } = this.jwtService.verify(token, {
+      secret: this.configService.get<string>('TOKEN_SIGNUP'),
+    });
+
+    const user = await this.userModel.findById(_id);
+
+    for (let type of user.authTypes) {
+      if (
+        type.authFor === authForOptions.CHANGE_EMAIL &&
+        type.type === authTypes.CODE
+      ) {
+        if (!compareSync(otp.toString(), type.value || '1'))
+          throw new BadRequestException('Invalid OTP');
+
+        if (type.expireAt < Date.now())
+          throw new BadRequestException('OTP Expired');
+
+        type.value = undefined;
+        break;
+      }
+    }
+
+    user.email = email;
+    user.status = userstatus.Offline;
+    user.confirmEmail = true;
+
+    await user.save();
+    return {
+      message: 'Email updated',
+      status: true,
+    };
+  }
 
   async forgetPassword(token: string, password: string, otp: string) {
     const { _id } = this.jwtService.verify(token, {

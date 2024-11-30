@@ -14,6 +14,7 @@ export enum authForOptions {
   PRE_LOGIN = 'PRE_LOGIN',
   SIGNUP = 'SIGNUP',
   FORGET_PASSWORD = 'FORGET_PASSWORD',
+  CHANGE_EMAIL = 'CHANGE_EMAIL',
 }
 
 export enum authTypes {

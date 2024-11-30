@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseFilters } from '@nestjs/common';
+import { Body, Controller, Patch, Post, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { authForOptions } from 'src/utils/Constants/user.constants';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
@@ -42,17 +42,27 @@ export class AuthController {
   //   return this.authService.verifyOTP(type, token, otp);
   // }
 
-  @Post('/preForgetPassword')
+  @Post('preForgetPassword')
   preForgetPassword(@Body('email') email: string) {
     return this.authService.preForgetPassword(email);
   }
 
-  @Post('/forgetPassword')
+  @Post('forgetPassword')
   forgetPassword(
     @Body('token') token: string,
     @Body('password') password: string,
     @Body('otp') otp: string,
   ) {
     return this.authService.forgetPassword(token, password, otp);
+  }
+
+  @Post('changeEmail')
+  updateEmail(@Body('email') email: string, @Body('token') token: string) {
+    return this.authService.changeMail(token, email);
+  }
+
+  @Patch('confirmChangeEmail')
+  confirmChangeEmail(@Body('token') token: string, @Body('otp') otp: string) {
+    return this.authService.confirmUpdateMail(token, otp);
   }
 }

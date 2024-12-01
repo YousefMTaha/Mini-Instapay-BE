@@ -29,6 +29,9 @@ export class Account {
 
   @Prop({ type: Types.ObjectId, ref: 'Bank', required: true })
   BankId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 }
 
 const accountSchema = SchemaFactory.createForClass(Account);

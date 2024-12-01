@@ -27,7 +27,7 @@ export class Account {
   Balance: Number;
 
   @Prop({ type: Types.ObjectId, ref: 'Bank', required: true })
-  BankId: Types.ObjectId;
+  bankId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;

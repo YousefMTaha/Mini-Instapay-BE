@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { resolve } from 'node:path';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './user/user.module';
+import { AccountModule } from './account/account.module';
+import { BankModule } from './bank/bank.module';
 @Module({
   imports: [
     AuthModule,
@@ -27,6 +29,8 @@ import { UserModule } from './user/user.module';
       global: true,
     },
     UserModule,
+    AccountModule,
+    BankModule,
   ],
   controllers: [AppController],
   providers: [AppService],

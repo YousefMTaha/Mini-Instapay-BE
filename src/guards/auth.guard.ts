@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -32,11 +33,11 @@ export class AuthGuard implements CanActivate {
       secret: this.configService.get<string>('TOKEN_LOGIN'),
     });
 
-    const user = await this.userModel.findById(_id, { password: -1 });
+    const user = await this.userModel.findById(_id, { password: 0 });
     if (!user) throw new NotFoundException('user not found');
 
     if (user.status == userstatus.Offline) {
-      throw new BadRequestException('you need to login again');
+      throw new UnauthorizedException('you need to login again');
     }
 
     if (user.status == userstatus.Suspended) {

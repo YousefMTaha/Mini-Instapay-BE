@@ -24,34 +24,42 @@ export class UserService {
     private readonly mailService: MailService,
   ) {}
 
+  async getUser(user: userType) {
+    return {
+      message: 'done',
+      status: true,
+      data: user,
+    };
+  }
+
   async updateUser(user: userType, updateData: any) {
-    if (updateData.email && user.email != updateData.email) {
-      if (this.userModel.findOne({ email: updateData.email })) {
-        throw new ConflictException('email is already exist');
-      }
-      const OTP = customAlphabet('0123456789', 5)();
+    // if (updateData.email && user.email != updateData.email) {
+    //   if (this.userModel.findOne({ email: updateData.email })) {
+    //     throw new ConflictException('email is already exist');
+    //   }
+    //   const OTP = customAlphabet('0123456789', 5)();
 
-      await this.mailService.sendEmail({
-        to: updateData.email,
-        subject: 'confirm new email',
-        html: `<h1> This is your OTP for confirm your new email, The OTP valid for 10 mintues</h1>
-          <h2> ${OTP} </h2>
-        `,
-      });
+    //   await this.mailService.sendEmail({
+    //     to: updateData.email,
+    //     subject: 'confirm new email',
+    //     html: `<h1> This is your OTP for confirm your new email, The OTP valid for 10 mintues</h1>
+    //       <h2> ${OTP} </h2>
+    //     `,
+    //   });
 
-      for (const ele of user.authTypes) {
-        if (
-          ele.authFor === authForOptions.SIGNUP &&
-          ele.type === authTypes.CODE
-        ) {
-          ele.value = hashSync(OTP, 9);
-          ele.expireAt = Date.now() + 10 * 60 * 1000;
-        }
-      }
+    //   for (const ele of user.authTypes) {
+    //     if (
+    //       ele.authFor === authForOptions.SIGNUP &&
+    //       ele.type === authTypes.CODE
+    //     ) {
+    //       ele.value = hashSync(OTP, 9);
+    //       ele.expireAt = Date.now() + 10 * 60 * 1000;
+    //     }
+    //   }
 
-      user.confirmEmail = false;
-      user.status = userstatus.Offline;
-    }
+    //   user.confirmEmail = false;
+    //   user.status = userstatus.Offline;
+    // }
 
     if (
       updateData.mobileNumber &&

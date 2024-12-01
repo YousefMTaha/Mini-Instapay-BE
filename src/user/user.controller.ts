@@ -37,7 +37,8 @@ export class UserController {
   updatePassword(@currentUser() userData: userType, @Body() body: any) {
     return this.userService.updatePassword(userData, body);
   }
-  @Post('changeEmail')
+
+  @Patch('changeEmail')
   updateEmail(@Body('email') email: string, @currentUser() user: userType) {
     return this.authService.changeMail(user, email);
   }
@@ -45,5 +46,10 @@ export class UserController {
   @Patch('confirmChangeEmail')
   confirmChangeEmail(@Body('token') token: string, @Body('otp') otp: string) {
     return this.authService.confirmUpdateMail(token, otp);
+  }
+
+  @Post('logout')
+  logout(@currentUser() user: userType) {
+    return this.userService.logout(user);
   }
 }

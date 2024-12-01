@@ -3,7 +3,7 @@ import { Document, Mongoose, Types } from 'mongoose';
 
 @Schema()
 export class Account {
-  @Prop({ required: true, length: 16 })
+  @Prop({ required: true, length: 16, unique: true })
   cardNo: Number;
 
   @Prop({ required: true })
@@ -18,7 +18,6 @@ export class Account {
       },
       month: {
         type: Number,
-        min: new Date().getMonth(),
       },
     },
   })
@@ -32,6 +31,12 @@ export class Account {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
+
+  @Prop({ required: true })
+  PIN: string;
+
+  @Prop({ type: Boolean })
+  default: Boolean;
 }
 
 const accountSchema = SchemaFactory.createForClass(Account);

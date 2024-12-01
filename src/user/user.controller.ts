@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Patch,
   Post,
   UseFilters,
@@ -21,6 +22,11 @@ export class UserController {
     private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get()
+  getUser(@currentUser() user: userType) {
+    return this.userService.getUser(user);
+  }
 
   @Patch()
   updateUser(@currentUser() user: userType, @Body() body: any) {

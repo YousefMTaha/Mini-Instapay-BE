@@ -1,5 +1,5 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, ObjectId, Types } from 'mongoose';
 import {
   authForOptions,
   authTypes,
@@ -74,6 +74,9 @@ export class User {
       expireAt?: number;
     },
   ];
+
+  @Prop({ type: Types.ObjectId, ref: 'Account' })
+  defaultAcc: Types.ObjectId;
 
   readonly _id: string;
 }

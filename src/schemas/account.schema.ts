@@ -1,9 +1,9 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Mongoose, Types } from 'mongoose';
 
-@Schema()
+@Schema({ versionKey: false })
 export class Account {
-  @Prop({ required: true, length: 16 })
+  @Prop({ required: true, length: 16, unique: true })
   cardNo: Number;
 
   @Prop({ required: true })
@@ -18,8 +18,8 @@ export class Account {
       },
       month: {
         type: Number,
-        min: new Date().getMonth(),
       },
+      _id: false,
     },
   })
   date: { year: number; month: number };
@@ -28,10 +28,16 @@ export class Account {
   Balance: Number;
 
   @Prop({ type: Types.ObjectId, ref: 'Bank', required: true })
-  BankId: Types.ObjectId;
+  bankId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
+
+  @Prop({ required: true })
+  PIN: string;
+
+  @Prop({ type: Boolean })
+  default: Boolean;
 }
 
 const accountSchema = SchemaFactory.createForClass(Account);

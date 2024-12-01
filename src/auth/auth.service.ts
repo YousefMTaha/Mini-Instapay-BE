@@ -10,7 +10,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, userType } from 'src/schemas/user.schema';
-import { hashSync, compareSync } from 'bcrypt';
+import { hashSync, compareSync } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from 'src/utils/email.service';

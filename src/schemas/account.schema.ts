@@ -1,7 +1,7 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Mongoose, Types } from 'mongoose';
 
-@Schema()
+@Schema({ versionKey: false })
 export class Account {
   @Prop({ required: true, length: 16, unique: true })
   cardNo: Number;
@@ -19,6 +19,7 @@ export class Account {
       month: {
         type: Number,
       },
+      _id: false,
     },
   })
   date: { year: number; month: number };

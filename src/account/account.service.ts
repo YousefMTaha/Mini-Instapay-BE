@@ -18,6 +18,17 @@ export class AccountService {
     @InjectModel(Account.name) private readonly _accountModel: Model<Account>,
   ) {}
 
+  async getAllAccounts(user: userType) {
+    const accounts = await this._accountModel.find({ userId: user._id });
+    if (!accounts.length) throw new NotFoundException('No account exists');
+
+    return {
+      message: 'done',
+      status: true,
+      data: accounts,
+    };
+  }
+
   async addAccount(body: any, user: userType) {
     // check if credit card number exist before
     const checkCard = await this._accountModel.findOne({ cardNo: body.cardNo });
@@ -43,7 +54,7 @@ export class AccountService {
 
     return {
       message: 'Account Created',
-      account,
+      data: account,
       status: true,
     };
   }

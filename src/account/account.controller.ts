@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -19,6 +20,11 @@ import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 @UseFilters(UnHandledExceptions)
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
+
+  @Get()
+  getAllAccounts(@currentUser() user: userType) {
+    return this.accountService.getAllAccounts(user);
+  }
 
   @Post()
   add(@Body() body: any, @currentUser() user: userType) {

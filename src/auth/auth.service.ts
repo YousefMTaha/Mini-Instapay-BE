@@ -66,7 +66,7 @@ export class AuthService {
     user.authTypes = undefined;
     user.password = undefined;
 
-    const userToken = this.jwtService.sign(
+    const token = this.jwtService.sign(
       { _id: user._id },
       { secret: this.configService.get<string>('TOKEN_SIGNUP') },
     );
@@ -74,7 +74,7 @@ export class AuthService {
     return {
       message: 'done',
       user,
-      userToken,
+      token,
       status: true,
     };
   }

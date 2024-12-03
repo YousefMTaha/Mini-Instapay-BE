@@ -3,6 +3,7 @@ import {
   Catch,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -81,5 +82,12 @@ export class UserService {
       message: 'done',
       status: true,
     };
+  }
+
+  async findById(id: string) {
+    const user = await this.userModel.findById(id);
+
+    if (!user) throw new NotFoundException(404);
+    return user;
   }
 }

@@ -24,7 +24,7 @@ export class MailService {
     html: string;
   }): Promise<boolean> {
     let info = await this.transporter.sendMail({
-      from: `Instapay-Support"instapay@gmail.com`,
+      from: `Mini-Instapay-Support"instapay@gmail.com"`,
       to,
       subject,
       html,

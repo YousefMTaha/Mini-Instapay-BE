@@ -372,7 +372,7 @@ export class AuthService {
       throw new ConflictException('email is already exist');
     }
 
-    const OTP = customAlphabet('0123456789', 5)();
+    const OTP = this.generateOTP();
 
     const codeDetails = verifyData.authTypes.find(
       (ele) =>
@@ -438,7 +438,7 @@ export class AuthService {
     }
 
     user.email = email;
-    user.status = userstatus.Offline;
+    // user.status = userstatus.Offline;
     user.confirmEmail = true;
 
     await user.save();

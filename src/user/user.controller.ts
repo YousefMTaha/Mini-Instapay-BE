@@ -38,7 +38,7 @@ export class UserController {
     return this.userService.updatePassword(userData, body);
   }
 
-  @Patch('changeEmail')
+  @Post('changeEmail')
   updateEmail(@Body('email') email: string, @currentUser() user: userType) {
     return this.authService.changeMail(user, email);
   }

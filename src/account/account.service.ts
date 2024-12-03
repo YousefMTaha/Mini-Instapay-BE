@@ -99,4 +99,10 @@ export class AccountService {
 
     return account;
   }
+
+  async checkUserAccount(userId: string) {
+    const account = await this._accountModel.findOne({ userId });
+    if (!account) throw new NotFoundException('No account founded');
+    return account;
+  }
 }

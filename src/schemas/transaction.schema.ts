@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 import {
   TransactionStatus,
   TransactionType,
-} from 'src/utils/Constants/account.constants';
+} from 'src/utils/Constants/transaction.constants';
 
 @Schema({ versionKey: false })
 export class Transaction {
@@ -27,10 +27,10 @@ export class Transaction {
 
 const transactionSchema = SchemaFactory.createForClass(Transaction);
 
-const accountModel = MongooseModule.forFeature([
+const transactionModel = MongooseModule.forFeature([
   { name: 'Transaction', schema: transactionSchema },
 ]);
 
 export type transactionType = Transaction & Document;
 
-export default accountModel;
+export default transactionModel;

@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
 import {
@@ -84,7 +84,7 @@ export class UserService {
     };
   }
 
-  async findById(id: string) {
+  async findById(id: Types.ObjectId) {
     const user = await this.userModel.findById(id);
 
     if (!user) throw new NotFoundException(404);

@@ -97,7 +97,7 @@ export class AuthService {
         if (!compareSync(otp.toString(), value.value || '1'))
           throw new BadRequestException('Invalid OTP');
 
-        if (value.expireAt < Date.now())
+        if (value.expireAt < Date.now() - 2 * 60 * 1000 * 60)
           throw new BadRequestException('OTP Expired');
 
         value.value = undefined;

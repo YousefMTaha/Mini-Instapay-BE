@@ -6,5 +6,5 @@ export enum TransactionStatus {
 
 export enum TransactionType {
   SEND = 'Send',
-  RECIEVE = 'recieve',
+  RECIEVE = 'Recieve',
 }

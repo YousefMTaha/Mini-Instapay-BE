@@ -97,7 +97,7 @@ export class AuthService {
         if (!compareSync(otp.toString(), value.value || '1'))
           throw new BadRequestException('Invalid OTP');
 
-        if (value.expireAt < Date.now() - 2 * 60 * 1000 * 60)
+        if (value.expireAt < new Date())
           throw new BadRequestException('OTP Expired');
 
         value.value = undefined;
@@ -128,7 +128,7 @@ export class AuthService {
   //       if (!compareSync(otp, value.value))
   //         throw new BadRequestException('Invalid OTP');
 
-  //       if (value.expireAt < Date.now())
+  //       if (value.expireAt < new Date())
   //         throw new BadRequestException('OTP Expired');
 
   //       value = undefined;
@@ -159,9 +159,9 @@ export class AuthService {
   //   }
   // }
 
-  private checkForSendOTPDuration(time: number) {
+  private checkForSendOTPDuration(time: Date) {
     const nowDateInMill = Date.now();
-    const expireAtInMill = time;
+    const expireAtInMill = Date.parse(time.toUTCString());
 
     if (nowDateInMill < expireAtInMill) {
       throw new HttpException(
@@ -199,7 +199,10 @@ export class AuthService {
         });
 
         value.value = hashSync(OTP, 9);
-        value.expireAt = Date.now() + 10 * 60 * 1000;
+        value.expireAt = new Date().setMinutes(
+          new Date().getMinutes() + 10,
+        ) as unknown as Date;
+        new Date().setMinutes(new Date().getMinutes() + 10) as unknown as Date;
 
         await user.save();
 
@@ -248,7 +251,9 @@ export class AuthService {
       }
 
       userType.value = hashSync(OTP, 9);
-      userType.expireAt = Date.now() + 10 * 60 * 1000;
+      userType.expireAt = new Date().setMinutes(
+        new Date().getMinutes() + 10,
+      ) as unknown as Date;
     }
 
     await this.mailService.sendEmail({
@@ -287,7 +292,7 @@ export class AuthService {
         if (!compareSync(otp.toString(), value.value || '1'))
           throw new BadRequestException('Invalid OTP');
 
-        if (value.expireAt < Date.now())
+        if (value.expireAt < new Date())
           throw new BadRequestException('OTP Expired');
 
         value.value = undefined;
@@ -331,7 +336,9 @@ export class AuthService {
     } else {
       // this.checkForSendOTPDuration(userType.expireAt);
       userType.value = hashSync(OTP, 9);
-      userType.expireAt = Date.now() + 10 * 60 * 1000;
+      userType.expireAt = new Date().setMinutes(
+        new Date().getMinutes() + 10,
+      ) as unknown as Date;
     }
 
     await this.mailService.sendEmail({
@@ -383,7 +390,9 @@ export class AuthService {
     if (codeDetails) {
       this.checkForSendOTPDuration(codeDetails.expireAt);
       codeDetails.value = hashSync(OTP, 9);
-      codeDetails.expireAt = Date.now() + 10 * 60 * 1000;
+      codeDetails.expireAt = new Date().setMinutes(
+        new Date().getMinutes() + 10,
+      ) as unknown as Date;
     } else {
       verifyData.authTypes.push({
         authFor: authForOptions.CHANGE_EMAIL,
@@ -429,7 +438,7 @@ export class AuthService {
         if (!compareSync(otp.toString(), type.value || '1'))
           throw new BadRequestException('Invalid OTP');
 
-        if (type.expireAt < Date.now())
+        if (type.expireAt < new Date())
           throw new BadRequestException('OTP Expired');
 
         type.value = undefined;
@@ -466,7 +475,7 @@ export class AuthService {
         if (!compareSync(otp.toString(), type.value || '1'))
           throw new BadRequestException('Invalid OTP');
 
-        if (type.expireAt < Date.now())
+        if (type.expireAt < new Date())
           throw new BadRequestException('OTP Expired');
 
         type.value = undefined;

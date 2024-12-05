@@ -9,5 +9,6 @@ import { AuthModule } from 'src/auth/auth.module';
   controllers: [UserController],
   providers: [UserService, MailService],
   imports: [userModel, AuthModule],
+  exports: [UserService],
 })
 export class UserModule {}

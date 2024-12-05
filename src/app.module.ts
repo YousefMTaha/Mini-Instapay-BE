@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { AccountModule } from './account/account.module';
 import { BankModule } from './bank/bank.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { NotificationModule } from './notification/notification.module';
 @Module({
   imports: [
     AuthModule,
@@ -21,6 +22,13 @@ import { TransactionsModule } from './transactions/transactions.module';
       useFactory: (config: ConfigService) => {
         return {
           uri: config.get<string>('DB_CLOUD_URL'),
+
+          onConnectionCreate(connection) {
+            connection.on('connected', () => {
+              return console.log(`****************** DB CONNECTED ******************`);
+            });
+            return connection;
+          },
         };
       },
       inject: [ConfigService],
@@ -33,6 +41,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     AccountModule,
     BankModule,
     TransactionsModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

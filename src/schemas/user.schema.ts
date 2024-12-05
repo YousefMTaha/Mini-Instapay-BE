@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, Types } from 'mongoose';
 import {
@@ -60,7 +61,7 @@ export class User {
         value: String,
         expireAt: {
           type: Date,
-          default: Date.now() + 10 * 60 * 1000,
+          default: new Date().setMinutes(new Date().getMinutes() + 10),
         },
         _id: false,
       },
@@ -71,7 +72,7 @@ export class User {
       type: authTypes;
       authFor: authForOptions;
       value: string;
-      expireAt?: number;
+      expireAt?: Date;
     },
   ];
 

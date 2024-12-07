@@ -62,7 +62,6 @@ export class AccountService {
 
     return {
       message: 'Account Created',
-      data: account,
       status: true,
     };
   }

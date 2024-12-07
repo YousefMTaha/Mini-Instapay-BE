@@ -84,8 +84,11 @@ export class UserService {
     };
   }
 
-  async findById(id: Types.ObjectId) {
-    const user = await this.userModel.findById(id);
+  async findUser({ id, email }: { id?: Types.ObjectId; email?: string }) {
+    let user: userType;
+
+    if (id) user = await this.userModel.findById(id);
+    else user = await this.userModel.findOne({ email });
 
     if (!user) throw new NotFoundException(404);
     return user;

@@ -30,7 +30,10 @@ export class TransactionsService {
       senderId: senderAcc.userId,
       type: TransactionType.SEND,
     });
-  }
 
-  
+    return {
+      message: 'Sended',
+      status: true,
+    };
+  }
 }

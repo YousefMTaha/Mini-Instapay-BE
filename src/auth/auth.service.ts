@@ -112,53 +112,6 @@ export class AuthService {
     return { message: 'Email confirmed', status: true };
   }
 
-  // async verifyOTP(type: authForOptions, token: string, otp: string) {
-  //   const { _id } = this.jwtService.verify(token, {
-  //     secret: this.configService.get<string>(`TOKEN_${type}`),
-  //   });
-
-  //   const user = await this.userModel.findById(_id);
-  //   if (!user) throw new NotFoundException('Invalid email, Signup');
-
-  //   for (let value of user.authTypes) {
-  //     if (
-  //       value.authFor === authForOptions[type] &&
-  //       value.type === authTypes.CODE
-  //     ) {
-  //       if (!compareSync(otp, value.value))
-  //         throw new BadRequestException('Invalid OTP');
-
-  //       if (value.expireAt < new Date())
-  //         throw new BadRequestException('OTP Expired');
-
-  //       value = undefined;
-
-  //       break;
-  //     }
-  //   }
-
-  //   return { message: 'OTP confirmed', status: true };
-  // }
-
-  // private async getTokenSignature(type: authForOptions) {
-  //   authForOptions.FORGET_PASSWORD;
-  //   authForOptions.LOGIN;
-  //   authForOptions.SIGNUP;
-  //   authForOptions.TRANSACTION;
-  //   switch (type) {
-  //     case authForOptions.FORGET_PASSWORD:
-  //       return 'TOKEN_FORGET_PASSWORD';
-  //     case authForOptions.LOGIN:
-  //       return 'TOKEN_LOGIN';
-  //     case authForOptions.SIGNUP:
-  //       return 'TOKEN_SIGNUP';
-  //     case authForOptions.TRANSACTION:
-  //       return 'TOKEN_TRANSACTION';
-  //     case authForOptions.PRE_LOGIN:
-  //       return;
-  //   }
-  // }
-
   private checkForSendOTPDuration(time: Date) {
     const nowDateInMill = Date.now();
     const expireAtInMill = Date.parse(time.toUTCString());

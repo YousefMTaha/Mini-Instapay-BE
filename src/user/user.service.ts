@@ -14,15 +14,11 @@ import {
   authTypes,
   userstatus,
 } from 'src/utils/Constants/user.constants';
-import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
-import { customAlphabet, nanoid } from 'nanoid';
-import { MailService } from 'src/utils/email.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    private readonly mailService: MailService,
   ) {}
 
   async getUser(user: userType) {

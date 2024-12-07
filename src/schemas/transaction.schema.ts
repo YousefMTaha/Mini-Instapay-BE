@@ -10,10 +10,11 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/utils/Constants/transaction.constants';
-import notificationModel, { Notification } from './notification.schema';
-import { notificationMsg } from 'src/utils/Constants/notification.constants';
+
 import { UserService } from 'src/user/user.service';
 import { UserModule } from 'src/user/user.module';
+import { NotificationService } from 'src/notification/notification.service';
+import { NotificationModule } from 'src/notification/notification.module';
 
 @Schema({ versionKey: false })
 export class Transaction {
@@ -41,8 +42,8 @@ const transactionModel = MongooseModule.forFeatureAsync([
   {
     name: 'Transaction',
     useFactory: (
-      notificationModel: Model<Notification>,
       UserService: UserService,
+      notificationService: NotificationService,
     ) => {
       transactionSchema.post('save', async function (doc) {
         let email: string;
@@ -54,23 +55,20 @@ const transactionModel = MongooseModule.forFeatureAsync([
           email = (await UserService.findUser({ id: doc.senderId })).email;
           userId = doc.recieverId;
         }
-
-        await notificationModel.create({
-          content: notificationMsg({
-            amount: doc.amount,
-            destination: email,
-          }),
-          transactionId: doc._id,
-          type: doc.type,
+        await notificationService.create({
+          email,
           userId,
+          type: doc.type,
+          amount: doc.amount,
+          transactionId: doc._id,
         });
       });
 
       return transactionSchema;
     },
 
-    imports: [notificationModel, UserModule],
-    inject: [UserService],
+    imports: [UserModule, NotificationModule],
+    inject: [UserService, NotificationService],
   },
 ]);
 

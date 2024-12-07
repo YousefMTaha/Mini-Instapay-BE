@@ -27,8 +27,6 @@ export class AccountService {
     if (!accounts.length) throw new NotFoundException('No account exists');
 
     const data = accounts.map((ele) => {
-      console.log(ele);
-
       return {
         //@ts-ignore
         ...ele._doc,

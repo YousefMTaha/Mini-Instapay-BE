@@ -3,14 +3,13 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UseFilters,
-  UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Account, accountType } from 'src/schemas/account.schema';
 import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
+import { accountErrMsg } from 'src/utils/Constants/system.constants';
 
 @Injectable()
 export class AccountService {
@@ -19,13 +18,24 @@ export class AccountService {
   ) {}
 
   async getAllAccounts(user: userType) {
-    const accounts = await this._accountModel.find({ userId: user._id });
+    const accounts = await this._accountModel
+      .find({ userId: user._id })
+      .select('cardNo bankId userId');
     if (!accounts.length) throw new NotFoundException('No account exists');
+
+    const data = accounts.map((ele) => {
+      return {
+        //@ts-ignore
+        ...ele._doc,
+        //@ts-ignore
+        cardNo: ele._doc.cardNo.substring(ele.cardNo.length - 4),
+      };
+    });
 
     return {
       message: 'done',
       status: true,
-      data: accounts,
+      data,
     };
   }
 
@@ -35,8 +45,6 @@ export class AccountService {
     if (checkCard) {
       throw new ConflictException('Card already linked with another account');
     }
-
-    console.log(body.CVV, body.PIN);
 
     const account = await this._accountModel.create({
       bankId: body.bankId,
@@ -58,6 +66,7 @@ export class AccountService {
       status: true,
     };
   }
+
   async updatePIN(body: any, user: userType, id: string) {
     // check if credit card number exist before
     const checkCard = await this._accountModel.findById(id);
@@ -78,6 +87,7 @@ export class AccountService {
       status: true,
     };
   }
+
   async deleteAccount(account: accountType) {
     await account.deleteOne();
 
@@ -100,9 +110,12 @@ export class AccountService {
     return account;
   }
 
-  async checkUserAccount(userId: string) {
+  async checkUserAccount(
+    userId: string,
+    errorMsg: string,
+  ): Promise<accountType> {
     const account = await this._accountModel.findOne({ userId });
-    if (!account) throw new NotFoundException('No account founded');
+    if (!account) throw new NotFoundException(accountErrMsg(errorMsg));
     return account;
   }
 }

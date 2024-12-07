@@ -48,10 +48,10 @@ const transactionModel = MongooseModule.forFeatureAsync([
         let email: string;
         let userId: Types.ObjectId;
         if (doc.type == TransactionType.SEND) {
-          email = (await UserService.findById(doc.recieverId)).email;
+          email = (await UserService.findUser({ id: doc.recieverId })).email;
           userId = doc.senderId;
         } else {
-          email = (await UserService.findById(doc.senderId)).email;
+          email = (await UserService.findUser({ id: doc.senderId })).email;
           userId = doc.recieverId;
         }
 

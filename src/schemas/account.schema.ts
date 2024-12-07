@@ -1,10 +1,11 @@
+import { BadRequestException } from '@nestjs/common';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Mongoose, Types } from 'mongoose';
 
 @Schema({ versionKey: false })
 export class Account {
   @Prop({ required: true, length: 16, unique: true })
-  cardNo: number;
+  cardNo: string;
 
   @Prop({ required: true })
   CVV: string;
@@ -42,10 +43,16 @@ export class Account {
 
 const accountSchema = SchemaFactory.createForClass(Account);
 
+accountSchema.method('checkAmount', function (amount: number) {
+  if (amount > this.Balance)
+    throw new BadRequestException("you don't have enough money");
+});
+
 const accountModel = MongooseModule.forFeature([
   { name: 'Account', schema: accountSchema },
 ]);
 
-export type accountType = Account & Document;
+export type accountType = Account &
+  Document & { checkAmount?(amount: number): void };
 
 export default accountModel;

@@ -26,6 +26,23 @@ export class AccountController {
     return this.accountService.getAllAccounts(user);
   }
 
+  @Post('balance/:accountId')
+  async getBalance(
+    @currentUser() user: userType,
+    @Param('accountId') accountId: string,
+    @Body('PIN') pin: string,
+  ) {
+    const account = await this.accountService.getAccount(accountId);
+
+    this.accountService.checkPIN(account, pin);
+
+    return {
+      message: 'done',
+      status: true,
+      data: account.Balance,
+    };
+  }
+
   @Post()
   add(@Body() body: any, @currentUser() user: userType) {
     return this.accountService.addAccount(body, user);

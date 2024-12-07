@@ -6,21 +6,35 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { userType } from 'src/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
 import { AccountService } from 'src/account/account.service';
+import { accountType } from 'src/utils/Constants/system.constants';
 
 @UseFilters(UnHandledExceptions)
 @UseGuards(AuthGuard)
-@Controller('transactions')
+@Controller('transaction')
 export class TransactionsController {
   constructor(
     private readonly transactionsService: TransactionsService,
     private readonly accountService: AccountService,
   ) {}
 
-  @Post('/sendMoney')
+  @Post('/send-money')
   async sendMoney(@currentUser() user: userType, @Body() body: any) {
-    const senderAccount = await this.accountService.checkUserAccount(user._id);
-    const receiveAccount = await this.accountService.checkUserAccount(user._id);
+    const senderAccount = await this.accountService.checkUserAccount(
+      user._id,
+      accountType.OWNER,
+    );
 
-    return this.transactionsService.sendMoney(senderAccount, receiveAccount, body.amount);
+    senderAccount.checkAmount(body.amount);
+
+    const receiveAccount = await this.accountService.checkUserAccount(
+      user._id,
+      accountType.RECEIVER,
+    );
+
+    return this.transactionsService.sendMoney(
+      senderAccount,
+      receiveAccount,
+      body.amount,
+    );
   }
 }

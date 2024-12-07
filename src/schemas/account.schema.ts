@@ -1,30 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Mongoose, Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ versionKey: false })
 export class Account {
-  @Prop({ required: true, length: 16, unique: true })
-  cardNo: string;
-
-  @Prop({ required: true })
-  CVV: string;
-
-  @Prop({
-    required: true,
-    type: {
-      year: {
-        type: Number,
-        min: new Date().getFullYear(),
-      },
-      month: {
-        type: Number,
-      },
-      _id: false,
-    },
-  })
-  date: { year: number; month: number };
-
   @Prop({ default: 500 })
   Balance: number;
 
@@ -33,6 +12,9 @@ export class Account {
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Card', required: true })
+  cardId: Types.ObjectId;
 
   @Prop({ required: true })
   PIN: string;

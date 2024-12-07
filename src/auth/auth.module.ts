@@ -8,6 +8,6 @@ import { userModel } from 'src/schemas/user.schema';
   imports: [userModel],
   controllers: [AuthController],
   providers: [AuthService, MailService],
-  exports: [AuthService],
+  exports: [AuthService , userModel],
 })
 export class AuthModule {}

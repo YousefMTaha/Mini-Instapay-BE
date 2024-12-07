@@ -15,6 +15,9 @@ export class Notification {
 
   @Prop({ ref: 'Transaction', requried: true })
   transactionId: Types.ObjectId;
+
+  @Prop({ default: false })
+  isRead: boolean;
 }
 
 const notificationSchema = SchemaFactory.createForClass(Notification);

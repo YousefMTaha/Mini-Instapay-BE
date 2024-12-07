@@ -21,15 +21,20 @@ export class AccountService {
   async getAllAccounts(user: userType) {
     const accounts = await this._accountModel
       .find({ userId: user._id })
-      .select('cardNo bankId userId');
+      .populate('cardId', 'cardNo')
+      .select('bankId userId');
+
     if (!accounts.length) throw new NotFoundException('No account exists');
 
     const data = accounts.map((ele) => {
+      console.log(ele);
+
       return {
         //@ts-ignore
         ...ele._doc,
         //@ts-ignore
-        cardNo: ele._doc.cardNo.substring(ele.cardNo.length - 4),
+        cardNo: ele._doc.cardId.cardNo.substring(ele.cardId.cardNo.length - 4),
+        cardId: undefined,
       };
     });
 

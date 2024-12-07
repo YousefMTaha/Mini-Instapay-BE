@@ -86,7 +86,7 @@ export class UserService {
     if (id) user = await this.userModel.findById(id);
     else user = await this.userModel.findOne({ email });
 
-    if (!user) throw new NotFoundException(404);
+    if (!user) throw new NotFoundException('No user found for this email');
     return user;
   }
 }

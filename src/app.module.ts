@@ -11,6 +11,7 @@ import { AccountModule } from './account/account.module';
 import { BankModule } from './bank/bank.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { NotificationModule } from './notification/notification.module';
+import { CardModule } from './card/card.module';
 @Module({
   imports: [
     AuthModule,
@@ -42,6 +43,7 @@ import { NotificationModule } from './notification/notification.module';
     BankModule,
     TransactionsModule,
     NotificationModule,
+    CardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

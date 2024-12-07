@@ -15,6 +15,7 @@ export class TransactionsController {
   constructor(
     private readonly transactionsService: TransactionsService,
     private readonly accountService: AccountService,
+    private readonly userService: UserService,
   ) {}
 
   @Post('/send-money')
@@ -26,8 +27,10 @@ export class TransactionsController {
 
     senderAccount.checkAmount(body.amount);
 
+    const receiver = await this.userService.findUser({ email: body.email });
+
     const receiveAccount = await this.accountService.checkUserAccount(
-      user._id,
+      receiver._id,
       accountType.RECEIVER,
     );
 

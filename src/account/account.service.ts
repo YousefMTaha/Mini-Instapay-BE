@@ -10,6 +10,7 @@ import { Account, accountType } from 'src/schemas/account.schema';
 import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
 import { accountErrMsg } from 'src/utils/Constants/system.constants';
+import { cardType } from 'src/schemas/card.schema';
 
 @Injectable()
 export class AccountService {
@@ -39,19 +40,11 @@ export class AccountService {
     };
   }
 
-  async addAccount(body: any, user: userType) {
-    // check if credit card number exist before
-    const checkCard = await this._accountModel.findOne({ cardNo: body.cardNo });
-    if (checkCard) {
-      throw new ConflictException('Card already linked with another account');
-    }
-
+  async addAccount(body: any, user: userType, card: cardType) {
     const account = await this._accountModel.create({
       bankId: body.bankId,
+      cardId: card._id,
       userId: user._id,
-      cardNo: body.cardNo,
-      date: body.date,
-      CVV: hashSync(body.CVV.toString(), 9),
       PIN: hashSync(body.PIN.toString(), 9),
     });
 

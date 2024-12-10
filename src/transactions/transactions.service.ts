@@ -43,9 +43,8 @@ export class TransactionsService {
         $or: [{ senderId: user._id }, { recieverId: user._id }],
       })
       .sort('createdAt')
-      .lean()
-      .populate({ path: 'senderId', select: 'email' })
-      .populate({ path: 'recieverId', select: 'email' });
+      .populate({ path: 'senderId', select: 'email firstName lastName' })
+      .populate({ path: 'recieverId', select: 'email firstName lastName' });
 
     if (!transactions.length)
       throw new NotFoundException('No transactions yet');

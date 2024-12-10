@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseFilters, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { currentUser } from 'src/decorators/current-user.decortaor';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
@@ -6,7 +13,8 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { userType } from 'src/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
 import { AccountService } from 'src/account/account.service';
-import { accountType } from 'src/utils/Constants/system.constants';
+import { accountType } from 'src/schemas/account.schema';
+import { EaccountType } from 'src/utils/Constants/system.constants';
 
 @UseFilters(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -20,18 +28,27 @@ export class TransactionsController {
 
   @Post('/send-money')
   async sendMoney(@currentUser() user: userType, @Body() body: any) {
-    const senderAccount = await this.accountService.checkUserAccount(
-      user._id,
-      accountType.OWNER,
-    );
+    let senderAccount: accountType;
+    if (body.accountId) {
+      senderAccount = await this.accountService.getAccountById(
+        user._id,
+        body.accountId,
+        EaccountType.OWNER,
+      );
+    } else {
+      senderAccount = await this.accountService.checkDefaultAcc(
+        user,
+        EaccountType.OWNER,
+      );
+    }
 
     senderAccount.checkAmount(body.amount);
 
     const receiver = await this.userService.findUser({ email: body.email });
 
-    const receiveAccount = await this.accountService.checkUserAccount(
-      receiver._id,
-      accountType.RECEIVER,
+    const receiveAccount = await this.accountService.checkDefaultAcc(
+      receiver,
+      EaccountType.RECEIVER,
     );
 
     return this.transactionsService.sendMoney(
@@ -39,5 +56,10 @@ export class TransactionsController {
       receiveAccount,
       body.amount,
     );
+  }
+
+  @Get('/history')
+  getHistory(@currentUser() user: userType) {
+    return this.transactionsService.getHistory(user);
   }
 }

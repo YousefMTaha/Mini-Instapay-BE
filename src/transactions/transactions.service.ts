@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
@@ -33,6 +33,26 @@ export class TransactionsService {
 
     return {
       message: 'Sended',
+      status: true,
+    };
+  }
+
+  async getHistory(user: userType) {
+    const transactions = await this.transactionModel
+      .find({
+        $or: [{ senderId: user._id }, { recieverId: user._id }],
+      })
+      .sort('createdAt')
+      .lean()
+      .populate({ path: 'senderId', select: 'email' })
+      .populate({ path: 'recieverId', select: 'email' });
+
+    if (!transactions.length)
+      throw new NotFoundException('No transactions yet');
+
+    return {
+      message: 'done',
+      data: transactions,
       status: true,
     };
   }

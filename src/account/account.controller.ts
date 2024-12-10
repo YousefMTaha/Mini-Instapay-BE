@@ -30,6 +30,11 @@ export class AccountController {
     return this.accountService.getAllAccounts(user);
   }
 
+  @Get('defaultAcc')
+  getDefault(@currentUser() user: userType) {
+    return this.accountService.getDefault(user);
+  }
+
   @Post('balance/:accountId')
   async getBalance(
     @currentUser() user: userType,

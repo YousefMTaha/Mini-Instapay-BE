@@ -7,6 +7,7 @@ import {
   userRoles,
   userstatus,
 } from 'src/utils/Constants/user.constants';
+import { accountType } from './account.schema';
 
 @Schema({
   timestamps: { updatedAt: false },
@@ -77,9 +78,9 @@ export class User {
   ];
 
   @Prop({ type: Types.ObjectId, ref: 'Account' })
-  defaultAcc: Types.ObjectId;
+  defaultAcc: accountType | Types.ObjectId;
 
-  readonly _id: string;
+  readonly _id: Types.ObjectId;
 }
 
 const userSchema = SchemaFactory.createForClass(User);

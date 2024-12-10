@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Account, accountType } from 'src/schemas/account.schema';
 import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
@@ -49,12 +49,13 @@ export class AccountService {
       cardId: card._id,
       userId: user._id,
       PIN: hashSync(body.PIN.toString(), 9),
+      default: user.defaultAcc ? false : true,
     });
 
-    // if (!user.defaultAcc) {
-    //   user.defaultAcc = account._id;
-    //   await user.save();
-    // }
+    if (!user.defaultAcc) {
+      user.defaultAcc = account._id;
+      await user.save();
+    }
 
     return {
       message: 'Account Created',
@@ -112,5 +113,37 @@ export class AccountService {
     const account = await this._accountModel.findOne({ userId });
     if (!account) throw new NotFoundException(accountErrMsg(errorMsg));
     return account;
+  }
+
+  async checkDefaultAcc(
+    user: userType,
+    errorMsg: string,
+  ): Promise<accountType> {
+    if (!user.defaultAcc) throw new NotFoundException(accountErrMsg(errorMsg));
+    const account = await user.populate('defaultAcc');
+
+    return account.defaultAcc as accountType;
+  }
+
+  async getAccountById(
+    userId: Types.ObjectId,
+    accountId: Types.ObjectId,
+    errorMsg: string,
+  ) {
+    const account = await this._accountModel.findOne({
+      userId: userId,
+      _id: accountId,
+    });
+    if (!account) throw new NotFoundException(accountErrMsg(errorMsg));
+    return account;
+  }
+
+  async getDefault(user: userType) {
+    if (!user.defaultAcc)
+      throw new NotFoundException(`No default acc yet, Add one account`);
+    const data = await user.populate('defaultAcc', ' bankId cardId');
+    console.log(data);
+
+    return data;
   }
 }

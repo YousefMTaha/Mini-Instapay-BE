@@ -19,8 +19,8 @@ export class Account {
   @Prop({ required: true })
   PIN: string;
 
-  @Prop({ type: Boolean })
-  default: boolean;
+  // @Prop({ type: Boolean, default: false })
+  // default: boolean;
 }
 
 const accountSchema = SchemaFactory.createForClass(Account);

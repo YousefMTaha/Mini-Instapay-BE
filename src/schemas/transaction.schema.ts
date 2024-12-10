@@ -16,7 +16,12 @@ import { UserModule } from 'src/user/user.module';
 import { NotificationService } from 'src/notification/notification.service';
 import { NotificationModule } from 'src/notification/notification.module';
 
-@Schema({ versionKey: false })
+@Schema({
+  versionKey: false,
+  timestamps: {
+    updatedAt: false,
+  },
+})
 export class Transaction {
   @Prop({ enum: TransactionStatus, default: TransactionStatus.SUCCESS })
   status: string;

@@ -19,6 +19,8 @@ export class Account {
   @Prop({ required: true })
   PIN: string;
 
+  @Prop({ default: 10000 })
+  sendLimit: number;
   // @Prop({ type: Boolean, default: false })
   // default: boolean;
   readonly _id: Types.ObjectId;
@@ -28,7 +30,7 @@ const accountSchema = SchemaFactory.createForClass(Account);
 
 accountSchema.method('checkAmount', function (amount: number) {
   if (amount > this.Balance)
-    throw new BadRequestException("you don't have enough money");
+    throw new BadRequestException("You don't have enough money");
 });
 
 const accountModel = MongooseModule.forFeature([

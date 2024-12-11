@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Catch,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -22,6 +21,16 @@ export class UserService {
   ) {}
 
   async getUser(user: userType) {
+    if (user.defaultAcc) {
+      await user.populate({
+        path: 'defaultAcc',
+        select: 'bankId',
+        populate: {
+          path: 'bankId',
+        },
+      });
+    }
+
     return {
       message: 'done',
       status: true,

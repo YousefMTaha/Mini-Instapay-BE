@@ -42,18 +42,22 @@ export class AuthController {
   //   return this.authService.verifyOTP(type, token, otp);
   // }
 
-  @Post('preForgetPassword')
+  @Post('send-forget-password-mail')
   preForgetPassword(@Body('email') email: string) {
-    return this.authService.preForgetPassword(email);
+    return this.authService.sendForgetPassOTP(email);
   }
 
-  @Post('forgetPassword')
+  @Post('confirm-otp-forget')
+  confirmOTPpassword(@Body('token') token: string, @Body('otp') otp: string) {
+    return this.authService.confirmOTPpassword(token, otp);
+  }
+
+  @Post('forget-password')
   forgetPassword(
     @Body('token') token: string,
     @Body('password') password: string,
-    @Body('otp') otp: string,
   ) {
-    return this.authService.forgetPassword(token, password, otp);
+    return this.authService.forgetPass(token, password);
   }
 
   @Post('changeEmail')

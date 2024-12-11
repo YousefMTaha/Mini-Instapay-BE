@@ -267,55 +267,6 @@ export class AuthService {
     };
   }
 
-  async preForgetPassword(email: string) {
-    const user = await this.userModel.findOne({ email });
-    if (!user) throw new ConflictException('email not exist');
-
-    const OTP = this.generateOTP();
-
-    const userType = user.authTypes.find(
-      (ele) =>
-        ele.authFor == authForOptions.FORGET_PASSWORD &&
-        ele.type === authTypes.CODE,
-    );
-
-    if (!userType) {
-      user.authTypes.push({
-        type: authTypes.CODE,
-        authFor: authForOptions.FORGET_PASSWORD,
-        value: hashSync(OTP, 9),
-      });
-    } else {
-      // this.checkForSendOTPDuration(userType.expireAt);
-      userType.value = hashSync(OTP, 9);
-      userType.expireAt = new Date().setMinutes(
-        new Date().getMinutes() + 10,
-      ) as unknown as Date;
-    }
-
-    await this.mailService.sendEmail({
-      to: email,
-      subject: 'Forget password',
-      html: `
-            <h1> This is your OTP for Forget password, The OTP valid for 10 mintues</h1>
-            <h2> ${OTP} </h2>
-            `,
-    });
-
-    const token = this.jwtService.sign(
-      { _id: user._id },
-      { secret: this.configService.get<string>('TOKEN_FORGET_PASSWORD') },
-    );
-
-    await user.save();
-
-    return {
-      message: 'Email Sended',
-      status: true,
-      token,
-    };
-  }
-
   async changeMail(verifyData: string | userType, newEmail: string) {
     if (typeof verifyData == 'string') {
       const { _id } = this.jwtService.verify(verifyData, {
@@ -409,7 +360,56 @@ export class AuthService {
     };
   }
 
-  async forgetPassword(token: string, password: string, otp: string) {
+  async sendForgetPassOTP(email: string) {
+    const user = await this.userModel.findOne({ email });
+    if (!user) throw new ConflictException('email not exist');
+
+    const OTP = this.generateOTP();
+
+    const userType = user.authTypes.find(
+      (ele) =>
+        ele.authFor == authForOptions.FORGET_PASSWORD &&
+        ele.type === authTypes.CODE,
+    );
+
+    if (!userType) {
+      user.authTypes.push({
+        type: authTypes.CODE,
+        authFor: authForOptions.FORGET_PASSWORD,
+        value: hashSync(OTP, 9),
+      });
+    } else {
+      this.checkForSendOTPDuration(userType.expireAt);
+      userType.value = hashSync(OTP, 9);
+      userType.expireAt = new Date().setMinutes(
+        new Date().getMinutes() + 10,
+      ) as unknown as Date;
+    }
+
+    await this.mailService.sendEmail({
+      to: email,
+      subject: 'Forget password',
+      html: `
+            <h1> This is your OTP for Forget password, The OTP valid for 10 mintues</h1>
+            <h2> ${OTP} </h2>
+            `,
+    });
+
+    const token = this.jwtService.sign(
+      { _id: user._id },
+      { secret: this.configService.get<string>('TOKEN_FORGET_PASSWORD') },
+    );
+
+    await user.save();
+
+    return {
+      message: 'Email Sended',
+      status: true,
+      token,
+    };
+  }
+
+  async confirmOTPpassword(token: string, otp: string) {
     const { _id } = this.jwtService.verify(token, {
       secret: this.configService.get<string>('TOKEN_FORGET_PASSWORD'),
     });
@@ -435,11 +435,29 @@ export class AuthService {
       }
     }
 
-    user.password = hashSync(password, 9);
-    await user.save();
+    const resToken = this.jwtService.sign(
+      { _id: user._id },
+      { secret: this.configService.get<string>('TOKEN_CONFIRM_OTP_FORGET') },
+    );
 
     return {
       message: 'Done',
+      status: true,
+      token: resToken,
+    };
+  }
+
+  async forgetPass(token: string, password: string) {
+    const { _id } = this.jwtService.verify(token, {
+      secret: this.configService.get<string>('TOKEN_CONFIRM_OTP_FORGET'),
+    });
+
+    await this.userModel.findByIdAndUpdate(_id, {
+      password: hashSync(password, 10),
+    });
+
+    return {
+      message: 'password changed',
       status: true,
     };
   }

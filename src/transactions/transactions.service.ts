@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
-import { Transaction } from 'src/schemas/transaction.schema';
+import { Transaction, transactionType } from 'src/schemas/transaction.schema';
 import { userType } from 'src/schemas/user.schema';
 import {
   TransactionStatus,
@@ -74,7 +74,7 @@ export class TransactionsService {
       recieverId: recAcc.userId,
       amount: body.amount,
       status: TransactionStatus.BENDING,
-      type: TransactionType.RECIEVE, 
+      type: TransactionType.RECIEVE,
     });
 
     return {
@@ -84,13 +84,31 @@ export class TransactionsService {
   }
 
   async confirmReceive(
-   
-  ){
+    senderAccount: accountType,
+    receiverAccount: accountType,
+    transaction: transactionType,
+  ) {
+    senderAccount.Balance -= transaction.amount;
+    await senderAccount.save();
 
+    receiverAccount.Balance += transaction.amount;
+    await receiverAccount.save();
 
+    transaction.status = TransactionStatus.SUCCESS;
+    await transaction.save();
   }
 
-  
+  async rejectReceive(
+    senderAccount: accountType,
+    receiverAccount: accountType,
+    transaction: transactionType,
+  ) {
+    transaction.status = TransactionStatus.FAILED;
+    await transaction.save();
 
-
+    return {
+      message: 'done',
+      status: true,
+    };
+  }
 }

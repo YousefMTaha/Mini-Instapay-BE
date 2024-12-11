@@ -24,11 +24,23 @@ export class UserService {
     if (user.defaultAcc) {
       await user.populate({
         path: 'defaultAcc',
-        select: 'bankId',
-        populate: {
-          path: 'bankId',
-        },
+        select: 'bankId cardId',
+        populate: [
+          {
+            path: 'bankId',
+          },
+          {
+            path: 'cardId',
+            select: 'cardNo',
+          },
+        ],
       });
+
+      //@ts-ignore
+      user.defaultAcc.cardId.cardNo = user.defaultAcc.cardId.cardNo.substring(
+        //@ts-ignore
+        user.defaultAcc.cardId.cardNo.length - 4,
+      );
     }
 
     return {

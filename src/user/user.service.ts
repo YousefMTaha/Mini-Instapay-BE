@@ -89,13 +89,26 @@ export class UserService {
     };
   }
 
-  async findUser({ id, email }: { id?: Types.ObjectId; email?: string }) {
+  async findUser({
+    id,
+    email,
+    data,
+  }: {
+    id?: Types.ObjectId;
+    email?: string;
+    data?: string;
+  }) {
     let user: userType;
 
     if (id) user = await this.userModel.findById(id);
-    else user = await this.userModel.findOne({ email });
-
-    if (!user) throw new NotFoundException('No user found for this email');
+    else if (email) user = await this.userModel.findOne({ email });
+    else {
+      user = await this.userModel.findOne({
+        $or: [{ email: data }, { mobileNumber: data }],
+      });
+    }
+    if (!user)
+      throw new NotFoundException('No user found for this email or mobile');
     return user;
   }
 }

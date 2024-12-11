@@ -49,7 +49,7 @@ export class TransactionsController {
 
     senderAccount.checkAmount(body.amount);
 
-    const receiver = await this.userService.findUser({ email: body.email });
+    const receiver = await this.userService.findUser({ loginData: body.data });
 
     const receiveAccount = await this.accountService.checkDefaultAcc(
       receiver,

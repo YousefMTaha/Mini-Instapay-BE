@@ -49,7 +49,9 @@ export class TransactionsController {
 
     senderAccount.checkAmount(body.amount);
 
-    const receiver = await this.userService.findUser({ loginData: body.data });
+    const receiver = await this.userService.findUser({
+      data: body.receiverData,
+    });
 
     const receiveAccount = await this.accountService.checkDefaultAcc(
       receiver,

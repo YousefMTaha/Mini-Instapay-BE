@@ -92,19 +92,19 @@ export class UserService {
   async findUser({
     id,
     email,
-    loginData,
+    data,
   }: {
     id?: Types.ObjectId;
     email?: string;
-    loginData?: string;
+    data?: string;
   }) {
     let user: userType;
 
     if (id) user = await this.userModel.findById(id);
     else if (email) user = await this.userModel.findOne({ email });
     else {
-      await this.userModel.findOne({
-        $or: [{ email: loginData, mobileNumber: loginData }],
+      user = await this.userModel.findOne({
+        $or: [{ email: data }, { mobileNumber: data }],
       });
     }
     if (!user)

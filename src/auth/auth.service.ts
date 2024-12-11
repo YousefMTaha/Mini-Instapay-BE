@@ -140,7 +140,7 @@ export class AuthService {
         value.authFor === authForOptions[type] &&
         value.type === authTypes.CODE
       ) {
-        this.checkForSendOTPDuration(value.expireAt);
+        // this.checkForSendOTPDuration(value.expireAt);
 
         const OTP = this.generateOTP();
         await this.mailService.sendEmail({
@@ -155,7 +155,6 @@ export class AuthService {
         value.expireAt = new Date().setMinutes(
           new Date().getMinutes() + 10,
         ) as unknown as Date;
-        new Date().setMinutes(new Date().getMinutes() + 10) as unknown as Date;
 
         await user.save();
 
@@ -320,7 +319,7 @@ export class AuthService {
   async changeMail(verifyData: string | userType, newEmail: string) {
     if (typeof verifyData == 'string') {
       const { _id } = this.jwtService.verify(verifyData, {
-        secret: this.configService.get<string>('TOKEN_SIGNUP'),
+        secret: this.configService.get<string>('TOKEN_CHANGE_EMAIL'),
       });
 
       verifyData = (await this.userModel.findById(_id)) as userType;
@@ -341,7 +340,7 @@ export class AuthService {
     );
 
     if (codeDetails) {
-      this.checkForSendOTPDuration(codeDetails.expireAt);
+      // this.checkForSendOTPDuration(codeDetails.expireAt);
       codeDetails.value = hashSync(OTP, 9);
       codeDetails.expireAt = new Date().setMinutes(
         new Date().getMinutes() + 10,
@@ -366,7 +365,7 @@ export class AuthService {
 
     const newMailToken = this.jwtService.sign(
       { email: newEmail, _id: verifyData._id },
-      { secret: this.configService.get<string>('TOKEN_SIGNUP') },
+      { secret: this.configService.get<string>('TOKEN_CHANGE_EMAIL') },
     );
 
     return {
@@ -378,7 +377,7 @@ export class AuthService {
 
   async confirmUpdateMail(token: string, otp: string) {
     const { email, _id } = this.jwtService.verify(token, {
-      secret: this.configService.get<string>('TOKEN_SIGNUP'),
+      secret: this.configService.get<string>('TOKEN_CHANGE_EMAIL'),
     });
 
     const user = await this.userModel.findById(_id);

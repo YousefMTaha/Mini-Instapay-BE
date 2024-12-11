@@ -21,6 +21,7 @@ export class Account {
 
   // @Prop({ type: Boolean, default: false })
   // default: boolean;
+  readonly _id: Types.ObjectId;
 }
 
 const accountSchema = SchemaFactory.createForClass(Account);

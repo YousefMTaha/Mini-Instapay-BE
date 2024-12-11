@@ -8,7 +8,7 @@ export const accountErrMsg = (type: string) => {
   const msg = {
     [EaccountType.SENDER]: 'No account found for the sender',
     [EaccountType.RECEIVER]: 'No account found for the receiver',
-    [EaccountType.OWNER]: "You don't have any account yet",
+    [EaccountType.OWNER]: 'No account found',
   };
 
   return msg[type];

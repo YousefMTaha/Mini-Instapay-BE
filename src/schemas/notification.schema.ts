@@ -18,6 +18,8 @@ export class Notification {
 
   @Prop({ default: false })
   isRead: boolean;
+
+  readonly _id: Types.ObjectId;
 }
 
 const notificationSchema = SchemaFactory.createForClass(Notification);

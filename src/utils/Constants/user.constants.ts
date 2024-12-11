@@ -6,7 +6,7 @@ export enum userRoles {
 export const userstatus = {
   Online: 'Online',
   Offline: 'Offline',
-  Suspended: 'suspended',
+  Suspended: 'Suspended',
 };
 
 export enum authForOptions {

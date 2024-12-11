@@ -33,15 +33,6 @@ export class AuthController {
     return this.authService.login(token, otp);
   }
 
-  // @Post('verifyOTP')
-  // verifyOTP(
-  //   @Body('otp') otp: string,
-  //   @Body('token') token: string,
-  //   @Body('type') type: authForOptions,
-  // ) {
-  //   return this.authService.verifyOTP(type, token, otp);
-  // }
-
   @Post('send-forget-password-mail')
   preForgetPassword(@Body('email') email: string) {
     return this.authService.sendForgetPassOTP(email);

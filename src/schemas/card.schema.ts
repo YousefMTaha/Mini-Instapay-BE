@@ -1,5 +1,5 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 @Schema({ versionKey: false })
 export class Card {
@@ -26,6 +26,8 @@ export class Card {
     },
   })
   date: { year: number; month: number };
+
+  readonly _id: Types.ObjectId;
 }
 
 const cardSchema = SchemaFactory.createForClass(Card);

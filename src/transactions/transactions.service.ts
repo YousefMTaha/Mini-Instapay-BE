@@ -4,7 +4,10 @@ import { Model } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
 import { Transaction } from 'src/schemas/transaction.schema';
 import { userType } from 'src/schemas/user.schema';
-import { TransactionType } from 'src/utils/Constants/transaction.constants';
+import {
+  TransactionStatus,
+  TransactionType,
+} from 'src/utils/Constants/transaction.constants';
 
 @Injectable()
 export class TransactionsService {
@@ -37,6 +40,15 @@ export class TransactionsService {
     };
   }
 
+  async changeDefaultAcc(user: userType, account: accountType) {
+    user.defaultAcc = account._id;
+    await user.save();
+    return {
+      message: 'Changed',
+      status: true,
+    };
+  }
+
   async getHistory(user: userType) {
     const transactions = await this.transactionModel
       .find({
@@ -55,4 +67,30 @@ export class TransactionsService {
       status: true,
     };
   }
+
+  async receiveMoney(senderAcc: accountType, recAcc: accountType, body: any) {
+    await this.transactionModel.create({
+      senderId: senderAcc.userId,
+      recieverId: recAcc.userId,
+      amount: body.amount,
+      status: TransactionStatus.BENDING,
+      type: TransactionType.RECIEVE, 
+    });
+
+    return {
+      message: 'Waiting for recevier to confirm',
+      status: true,
+    };
+  }
+
+  async confirmReceive(
+   
+  ){
+
+
+  }
+
+  
+
+
 }

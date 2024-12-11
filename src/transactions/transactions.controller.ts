@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   UseFilters,
   UseGuards,
@@ -15,6 +17,7 @@ import { UserService } from 'src/user/user.service';
 import { AccountService } from 'src/account/account.service';
 import { accountType } from 'src/schemas/account.schema';
 import { EaccountType } from 'src/utils/Constants/system.constants';
+import { Types } from 'mongoose';
 
 @UseFilters(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -42,6 +45,8 @@ export class TransactionsController {
       );
     }
 
+    this.accountService.checkPIN(senderAccount, body.PIN);
+
     senderAccount.checkAmount(body.amount);
 
     const receiver = await this.userService.findUser({ email: body.email });
@@ -58,8 +63,54 @@ export class TransactionsController {
     );
   }
 
-  @Get('/history')
+  @Get('history')
   getHistory(@currentUser() user: userType) {
     return this.transactionsService.getHistory(user);
+  }
+
+  @Patch('change-default')
+  async changeDefault(
+    @currentUser() user: userType,
+    @Body('accountId') accountId: Types.ObjectId,
+  ) {
+    if (user.defaultAcc.toString() == accountId.toString()) {
+      throw new BadRequestException("It's already the default account");
+    }
+    const account = await this.accountService.getAccountById(
+      user._id,
+      accountId,
+      EaccountType.OWNER,
+    );
+    return this.transactionsService.changeDefaultAcc(user, account);
+  }
+
+  @Post('recieve-money')
+  async recieveMoney(@currentUser() user: userType, @Body() body: any) {
+    let recieverAcc: accountType;
+    if (body.accountId) {
+      recieverAcc = await this.accountService.getAccountById(
+        user._id,
+        body.accountId,
+        EaccountType.RECEIVER,
+      );
+    } else {
+      recieverAcc = await this.accountService.checkDefaultAcc(
+        user,
+        EaccountType.RECEIVER,
+      );
+    }
+
+    const receiver = await this.userService.findUser({ email: body.email });
+
+    const senderAcc = await this.accountService.checkDefaultAcc(
+      receiver,
+      EaccountType.SENDER,
+    );
+
+    return this.transactionsService.receiveMoney(
+      senderAcc,
+      recieverAcc,
+      body.amount,
+    );
   }
 }

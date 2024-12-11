@@ -1,6 +1,7 @@
 export enum TransactionStatus {
   REFUNDED = 'Refunded',
   SUCCESS = 'Success',
+  BENDING = 'Bending',
   FAILED = 'Failed',
 }
 

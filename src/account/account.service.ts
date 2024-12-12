@@ -20,7 +20,7 @@ export class AccountService {
 
   async getAllAccounts(user: userType) {
     const accounts = await this._accountModel
-      .find({ userId: user._id })
+      .find({ userId: user._id, _id: { $ne: user.defaultAcc } })
       .populate('cardId', 'cardNo')
       .select('bankId userId');
 

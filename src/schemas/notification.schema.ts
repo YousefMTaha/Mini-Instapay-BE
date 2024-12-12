@@ -2,7 +2,7 @@ import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { notificationType } from 'src/utils/Constants/notification.constants';
 
-@Schema({ versionKey: false })
+@Schema({ versionKey: false, timestamps: { updatedAt: false } })
 export class Notification {
   @Prop({ required: true })
   content: string;

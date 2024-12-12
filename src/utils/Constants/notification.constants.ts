@@ -1,8 +1,8 @@
-export enum notificationType {
+export enum EnotificationType {
   SEND = 'Send',
   RECIEVE = 'Recieve',
   REQUEST_SEND = 'Request_Send',
-  FRAUD_DETECTION = 'Fraud_Detection',
+  WRONG_PIN = 'Wrong_PIN',
 }
 
 export const notificationMsg = ({

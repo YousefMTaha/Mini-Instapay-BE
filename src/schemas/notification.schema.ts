@@ -1,6 +1,6 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
-import { notificationType } from 'src/utils/Constants/notification.constants';
+import { Document, Types } from 'mongoose';
+import { EnotificationType } from 'src/utils/Constants/notification.constants';
 
 @Schema({ versionKey: false, timestamps: { updatedAt: false } })
 export class Notification {
@@ -10,11 +10,11 @@ export class Notification {
   @Prop({ ref: 'User', required: true })
   userId: Types.ObjectId;
 
-  @Prop({ enum: notificationType, required: true })
+  @Prop({ enum: EnotificationType, required: true })
   type: string;
 
-  @Prop({ ref: 'Transaction', requried: true })
-  transactionId: Types.ObjectId;
+  @Prop({ ref: 'Transaction' })
+  transactionId?: Types.ObjectId;
 
   @Prop({ default: false })
   isRead: boolean;
@@ -27,5 +27,7 @@ const notificationSchema = SchemaFactory.createForClass(Notification);
 const notificationModel = MongooseModule.forFeature([
   { name: Notification.name, schema: notificationSchema },
 ]);
+
+export type notificationType = Notification & Document;
 
 export default notificationModel;

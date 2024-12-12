@@ -5,11 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Notification } from 'src/schemas/notification.schema';
+import {
+  Notification,
+  notificationType,
+} from 'src/schemas/notification.schema';
 import { userType } from 'src/schemas/user.schema';
 import {
   notificationMsg,
-  notificationType,
+  EnotificationType,
 } from 'src/utils/Constants/notification.constants';
 
 @Injectable()
@@ -38,7 +41,9 @@ export class NotificationService {
   }
 
   async getAllNotfications(userId: Types.ObjectId) {
-    const notifications = await this.notificationModel.find({ userId });
+    const notifications = await this.notificationModel
+      .find({ userId })
+      .sort('-createdAt');
     if (!notifications.length)
       throw new NotFoundException('There is no notifications yet');
     return {
@@ -46,6 +51,25 @@ export class NotificationService {
       status: true,
       data: notifications,
     };
+  }
+
+  async markAsRead(notification: notificationType) {
+    notification.isRead = true;
+    await notification.save();
+    return {
+      message: 'done',
+      status: true,
+    };
+  }
+
+  async findById(user: userType, notifcationId: Types.ObjectId) {
+    const notifcation = await this.notificationModel.findOne({
+      userId: user._id,
+      _id: notifcationId,
+    });
+
+    if (!notifcation) throw new NotFoundException('Notification not found');
+    return notifcation;
   }
 
   async sendOrRecieve(
@@ -60,7 +84,7 @@ export class NotificationService {
     // For sender
     await this.notificationModel.create({
       userId: sender._id,
-      type: notificationType.SEND,
+      type: EnotificationType.SEND,
       content: notificationMsg({ amount, destination: reciever.email })['Send'],
       amount,
       transactionId,
@@ -69,7 +93,7 @@ export class NotificationService {
     // For reciever
     await this.notificationModel.create({
       userId: reciever._id,
-      type: notificationType.RECIEVE,
+      type: EnotificationType.RECIEVE,
       content: notificationMsg({ amount, destination: sender.email })[
         'Recieved'
       ],
@@ -92,7 +116,7 @@ export class NotificationService {
     // For sender
     await this.notificationModel.create({
       userId: sender._id,
-      type: notificationType.REQUEST_SEND,
+      type: EnotificationType.REQUEST_SEND,
       content: notificationMsg({ amount, destination: reciever.email })[
         'requestSend'
       ],
@@ -105,6 +129,7 @@ export class NotificationService {
       status: true,
     };
   }
+
   async rejectSend(
     senderEmail: string,
     recieverId: Types.ObjectId,
@@ -114,7 +139,7 @@ export class NotificationService {
     // For reciever
     await this.notificationModel.create({
       userId: recieverId,
-      type: notificationType.REQUEST_SEND,
+      type: EnotificationType.REQUEST_SEND,
       content: notificationMsg({ destination: senderEmail })['rejectSend'],
       amount,
       transactionId,
@@ -125,4 +150,6 @@ export class NotificationService {
       status: true,
     };
   }
+
+  async wrongPIN(account) {}
 }

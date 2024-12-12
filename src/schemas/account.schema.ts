@@ -21,6 +21,10 @@ export class Account {
 
   @Prop({ default: 10000 })
   sendLimit: number;
+
+  @Prop({ default: 0 })
+  wrongPIN: number;
+
   // @Prop({ type: Boolean, default: false })
   // default: boolean;
   readonly _id: Types.ObjectId;
@@ -33,11 +37,15 @@ accountSchema.method('checkAmount', function (amount: number) {
     throw new BadRequestException("You don't have enough money");
 });
 
+accountSchema.method('checkNoOfTries', function () {
+  return !(this.wrongPIN >= 5);
+});
+
 const accountModel = MongooseModule.forFeature([
   { name: 'Account', schema: accountSchema },
 ]);
 
 export type accountType = Account &
-  Document & { checkAmount?(amount: number): void };
+  Document & { checkAmount?(amount: number): void; checkNoOfTries?(): boolean };
 
 export default accountModel;

@@ -5,7 +5,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
-import { notificationType } from 'src/utils/Constants/notification.constants';
+import { EnotificationType } from 'src/utils/Constants/notification.constants';
 
 @WebSocketGateway({ cors: true })
 export class NotificationGateWay
@@ -24,7 +24,7 @@ export class NotificationGateWay
   }
 
   @SubscribeMessage('send_notification')
-  handelEvents(@MessageBody() notification: notificationType) {
+  handelEvents(@MessageBody() notification: EnotificationType) {
     console.log(notification);
   }
 }

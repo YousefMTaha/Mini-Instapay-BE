@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
@@ -13,12 +15,16 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/utils/Constants/transaction.constants';
+import { MailService } from 'src/utils/email.service';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectModel(Transaction.name)
     private readonly transactionModel: Model<Transaction>,
+    private readonly JwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async getById(tId: Types.ObjectId) {
@@ -48,6 +54,41 @@ export class TransactionsService {
     });
 
     return transaction;
+  }
+
+  async checkNoOfTries(account: accountType, user: userType) {
+    if (account.checkNoOfTries()) {
+      const emailToken = this.JwtService.sign(
+        { accountId: account._id },
+        { secret: this.configService.get<string>('EXCEED_TRYS') },
+      );
+
+      const url = `http://localhost:3000/transaction/verifyAccountUser/${emailToken}`;
+      await this.mailService.sendEmail({
+        to: user.email,
+        subject: 'Reset PIN trys',
+        html: `
+        <h1> You entered PIN wrong many times on instapay </h1>
+        <h2> we want to ensure that the owner account who was trying.</h2>
+        to continue to try enter the PIN <a href='${url}'> click this link </a>  
+          `,
+      });
+
+      throw new BadRequestException(
+        'You enterd the wrong PIN too many times, To continue trying, Check your email that linked with this account',
+      );
+    }
+  }
+
+  async resetTries(token: string) {
+    const { accountId } = this.JwtService.verify(token, {
+      secret: this.configService.get<string>('EXCEED_TRYS'),
+    });
+
+    const account = await this.transactionModel.findById(accountId);
+    if (!account) throw new NotFoundException('invalid accountId');
+
+    // const 
   }
 
   async changeDefaultAcc(user: userType, account: accountType) {
@@ -125,7 +166,6 @@ export class TransactionsService {
           accRecieverId: 0,
         },
       },
-
       {
         $match: {
           $or: [{ 'sender._id': user._id }, { 'reciever._id': user._id }],

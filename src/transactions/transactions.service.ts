@@ -60,13 +60,76 @@ export class TransactionsService {
   }
 
   async getHistory(user: userType) {
-    const transactions = await this.transactionModel
-      .find({
-        $or: [{ accSenderId: user._id }, { accRecieverId: user._id }],
-      })
-      .sort('createdAt');
-    // .populate({ path: 'senderId', select: 'email firstName lastName' })
-    // .populate({ path: 'recieverId', select: 'email firstName lastName' });
+    const transactions = await this.transactionModel.aggregate([
+      {
+        $lookup: {
+          from: 'accounts',
+          localField: 'accSenderId',
+          foreignField: '_id',
+          as: 'accSenderId',
+        },
+      },
+      { $unwind: '$accSenderId' },
+      {
+        $lookup: {
+          from: 'users',
+          foreignField: '_id',
+          localField: 'accSenderId.userId',
+          as: 'sender',
+          pipeline: [
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'accounts',
+          localField: 'accRecieverId',
+          foreignField: '_id',
+          as: 'accRecieverId',
+        },
+      },
+      { $unwind: '$accRecieverId' },
+      {
+        $lookup: {
+          from: 'users',
+          foreignField: '_id',
+          localField: 'accRecieverId.userId',
+          as: 'reciever',
+          pipeline: [
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: '$sender' },
+      { $unwind: '$reciever' },
+      {
+        $project: {
+          accSenderId: 0,
+          accRecieverId: 0,
+        },
+      },
+
+      {
+        $match: {
+          $or: [{ 'sender._id': user._id }, { 'reciever._id': user._id }],
+        },
+      },
+    ]);
 
     if (!transactions.length)
       throw new NotFoundException('No transactions yet');

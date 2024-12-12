@@ -131,6 +131,9 @@ export class TransactionsService {
           $or: [{ 'sender._id': user._id }, { 'reciever._id': user._id }],
         },
       },
+      {
+        $sort: { createdAt: -1 },
+      },
     ]);
 
     if (!transactions.length)

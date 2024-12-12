@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Notification } from 'src/schemas/notification.schema';
@@ -50,6 +54,9 @@ export class NotificationService {
     transactionId: Types.ObjectId,
     amount: number,
   ) {
+    if (sender._id.toString() === reciever._id.toString()) {
+      throw new BadRequestException("You can't send to your self");
+    }
     // For sender
     await this.notificationModel.create({
       userId: sender._id,

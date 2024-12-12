@@ -71,7 +71,7 @@ export class NotificationService {
     });
 
     return {
-      message: 'Sended',
+      message: 'Done, check you notifcation section',
       status: true,
     };
   }
@@ -114,7 +114,7 @@ export class NotificationService {
     });
 
     return {
-      message: 'sended',
+      message: 'Done',
       status: true,
     };
   }

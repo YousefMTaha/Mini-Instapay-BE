@@ -42,8 +42,8 @@ export class TransactionsService {
 
     const transaction = await this.transactionModel.create({
       amount,
-      recieverId: receiveAcc.userId,
-      senderId: senderAcc.userId,
+      accRecieverId: receiveAcc,
+      accSenderId: senderAcc,
       type: TransactionType.SEND,
     });
 
@@ -62,11 +62,11 @@ export class TransactionsService {
   async getHistory(user: userType) {
     const transactions = await this.transactionModel
       .find({
-        $or: [{ senderId: user._id }, { recieverId: user._id }],
+        $or: [{ accSenderId: user._id }, { accRecieverId: user._id }],
       })
-      .sort('createdAt')
-      .populate({ path: 'senderId', select: 'email firstName lastName' })
-      .populate({ path: 'recieverId', select: 'email firstName lastName' });
+      .sort('createdAt');
+    // .populate({ path: 'senderId', select: 'email firstName lastName' })
+    // .populate({ path: 'recieverId', select: 'email firstName lastName' });
 
     if (!transactions.length)
       throw new NotFoundException('No transactions yet');
@@ -78,11 +78,15 @@ export class TransactionsService {
     };
   }
 
-  async receiveMoney(senderAcc: accountType, recAcc: accountType, body: any) {
+  async receiveMoney(
+    senderAcc: accountType,
+    recAcc: accountType,
+    amount: number,
+  ) {
     return await this.transactionModel.create({
-      senderId: senderAcc.userId,
-      recieverId: recAcc.userId,
-      amount: body.amount,
+      accSenderId: senderAcc,
+      accRecieverId: recAcc,
+      amount,
       status: TransactionStatus.BENDING,
       type: TransactionType.RECIEVE,
     });
@@ -100,10 +104,16 @@ export class TransactionsService {
     await receiverAccount.save();
 
     transaction.status = TransactionStatus.SUCCESS;
+    transaction.accSenderId = senderAccount._id;
     await transaction.save();
   }
 
-  async rejectReceive(transaction: transactionType) {
+  async rejectReceive(sender: userType, transaction: transactionType) {
+    const senderAcc = transaction.accSenderId as accountType;
+    if (senderAcc.userId.toString() !== sender._id.toString()) {
+      throw new ForbiddenException("You aren't the sender of this transaction");
+    }
+
     transaction.status = TransactionStatus.FAILED;
     await transaction.save();
 
@@ -119,8 +129,11 @@ export class TransactionsService {
     }
   }
 
-  checkTransactionOwner(transaction: transactionType, sender: userType) {
-    if (transaction.senderId.toString() != sender._id.toString()) {
+  async checkTransactionOwner(transaction: transactionType, sender: userType) {
+    const transactionSenderAcc = (await transaction.populate('accSenderId'))
+      .accSenderId as accountType;
+
+    if (transactionSenderAcc.userId.toString() != sender._id.toString()) {
       throw new ForbiddenException("You aren't the sender of this transaction");
     }
   }

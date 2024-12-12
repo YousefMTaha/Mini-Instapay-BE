@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { UserModule } from 'src/user/user.module';
 import { NotificationService } from 'src/notification/notification.service';
 import { NotificationModule } from 'src/notification/notification.module';
+import { accountType } from './account.schema';
 
 @Schema({
   versionKey: false,
@@ -32,11 +33,11 @@ export class Transaction {
   @Prop({ required: true, min: 5 })
   amount: number;
 
-  @Prop({ ref: 'User', required: true })
-  senderId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
+  accSenderId: Types.ObjectId | accountType;
 
-  @Prop({ ref: 'User', required: true })
-  recieverId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
+  accRecieverId: Types.ObjectId | accountType;
 
   readonly _id: Types.ObjectId;
 }

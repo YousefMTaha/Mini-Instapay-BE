@@ -112,7 +112,7 @@ export class TransactionsController {
       );
     }
 
-    const sender = await this.userService.findUser({ email: body.email });
+    const sender = await this.userService.findUser({ data: body.reciverData });
 
     const senderAcc = await this.accountService.checkDefaultAcc(
       sender,
@@ -133,6 +133,7 @@ export class TransactionsController {
     );
   }
 
+  @UseFilters(UnHandledExceptions)
   @Post('confirm-recieve/:transactionId')
   async confirmRec(
     @currentUser() sender: userType,
@@ -141,8 +142,11 @@ export class TransactionsController {
   ) {
     const transaction = await this.transactionsService.getById(transactionId);
 
+    const receiverAcc = (await transaction.populate('accRecieverId'))
+      .accRecieverId as accountType;
+
     this.transactionsService.checkTransactionStatus(transaction);
-    this.transactionsService.checkTransactionOwner(transaction, sender);
+    await this.transactionsService.checkTransactionOwner(transaction, sender);
 
     let senderAccount: accountType;
     if (body.accountId) {
@@ -163,7 +167,7 @@ export class TransactionsController {
     senderAccount.checkAmount(transaction.amount);
 
     const receiver = await this.userService.findUser({
-      id: transaction.recieverId,
+      id: receiverAcc.userId,
     });
 
     const receiveAccount = await this.accountService.checkDefaultAcc(
@@ -190,15 +194,17 @@ export class TransactionsController {
     @currentUser() sender: userType,
     @Param('transactionId') transactionId: Types.ObjectId,
   ) {
-    const transaction = await this.transactionsService.getById(transactionId);
+    const transaction = await (
+      await this.transactionsService.getById(transactionId)
+    ).populate('accSenderId');
 
     this.transactionsService.checkTransactionStatus(transaction);
 
-    await this.transactionsService.rejectReceive(transaction);
+    await this.transactionsService.rejectReceive(sender, transaction);
 
     return this.notificationService.rejectSend(
       sender.email,
-      transaction.recieverId,
+      transaction.accRecieverId as Types.ObjectId,
       transaction._id,
       transaction.amount,
     );

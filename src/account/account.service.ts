@@ -49,7 +49,7 @@ export class AccountService {
       cardId: card._id,
       userId: user._id,
       PIN: hashSync(body.PIN.toString(), 9),
-      default: user.defaultAcc ? false : true,
+      // default: user.defaultAcc ? false : true,
     });
 
     if (!user.defaultAcc) {
@@ -84,9 +84,13 @@ export class AccountService {
     };
   }
 
-  async deleteAccount(account: accountType) {
+  async deleteAccount(user: userType, account: accountType) {
     await account.deleteOne();
 
+    if (user.defaultAcc.toString() == account._id.toString()) {
+      user.defaultAcc = undefined;
+      await user.save();
+    }
     return {
       message: 'account deleted',
       status: true,

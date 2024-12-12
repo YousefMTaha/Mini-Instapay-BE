@@ -50,24 +50,9 @@ const transactionModel = MongooseModule.forFeatureAsync([
       UserService: UserService,
       notificationService: NotificationService,
     ) => {
-      transactionSchema.post('save', async function (doc) {
-        let email: string;
-        let userId: Types.ObjectId;
-        if (doc.type == TransactionType.SEND) {
-          email = (await UserService.findUser({ id: doc.recieverId })).email;
-          userId = doc.senderId;
-        } else {
-          email = (await UserService.findUser({ id: doc.senderId })).email;
-          userId = doc.recieverId;
-        }
-        await notificationService.create({
-          email,
-          userId,
-          type: doc.type,
-          amount: doc.amount,
-          transactionId: doc._id,
-        });
-      });
+      // transactionSchema.post('save', async function (doc) {
+
+      // });
 
       return transactionSchema;
     },

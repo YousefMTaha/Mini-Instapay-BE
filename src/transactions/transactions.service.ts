@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
 import { Transaction, transactionType } from 'src/schemas/transaction.schema';
 import { userType } from 'src/schemas/user.schema';
@@ -16,6 +21,14 @@ export class TransactionsService {
     private readonly transactionModel: Model<Transaction>,
   ) {}
 
+  async getById(tId: Types.ObjectId) {
+    const transaction = await this.transactionModel.findById(tId);
+    if (!transaction) {
+      throw new NotFoundException('invalid transaction id');
+    }
+    return transaction;
+  }
+
   async sendMoney(
     senderAcc: accountType,
     receiveAcc: accountType,
@@ -27,17 +40,14 @@ export class TransactionsService {
     receiveAcc.Balance += amount;
     await receiveAcc.save();
 
-    await this.transactionModel.create({
+    const transaction = await this.transactionModel.create({
       amount,
       recieverId: receiveAcc.userId,
       senderId: senderAcc.userId,
       type: TransactionType.SEND,
     });
 
-    return {
-      message: 'Sended',
-      status: true,
-    };
+    return transaction;
   }
 
   async changeDefaultAcc(user: userType, account: accountType) {
@@ -69,18 +79,13 @@ export class TransactionsService {
   }
 
   async receiveMoney(senderAcc: accountType, recAcc: accountType, body: any) {
-    await this.transactionModel.create({
+    return await this.transactionModel.create({
       senderId: senderAcc.userId,
       recieverId: recAcc.userId,
       amount: body.amount,
       status: TransactionStatus.BENDING,
       type: TransactionType.RECIEVE,
     });
-
-    return {
-      message: 'Waiting for recevier to confirm',
-      status: true,
-    };
   }
 
   async confirmReceive(
@@ -98,11 +103,7 @@ export class TransactionsService {
     await transaction.save();
   }
 
-  async rejectReceive(
-    senderAccount: accountType,
-    receiverAccount: accountType,
-    transaction: transactionType,
-  ) {
+  async rejectReceive(transaction: transactionType) {
     transaction.status = TransactionStatus.FAILED;
     await transaction.save();
 
@@ -110,5 +111,17 @@ export class TransactionsService {
       message: 'done',
       status: true,
     };
+  }
+
+  checkTransactionStatus(transaction: transactionType) {
+    if (transaction.status != TransactionStatus.BENDING) {
+      throw new BadRequestException('This transaction was closed');
+    }
+  }
+
+  checkTransactionOwner(transaction: transactionType, sender: userType) {
+    if (transaction.senderId.toString() != sender._id.toString()) {
+      throw new ForbiddenException("You aren't the sender of this transaction");
+    }
   }
 }

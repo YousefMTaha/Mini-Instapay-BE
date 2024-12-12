@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   UseFilters,
@@ -18,6 +19,7 @@ import { AccountService } from 'src/account/account.service';
 import { accountType } from 'src/schemas/account.schema';
 import { EaccountType } from 'src/utils/Constants/system.constants';
 import { Types } from 'mongoose';
+import { NotificationService } from 'src/notification/notification.service';
 
 @UseFilters(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -27,20 +29,21 @@ export class TransactionsController {
     private readonly transactionsService: TransactionsService,
     private readonly accountService: AccountService,
     private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   @Post('/send-money')
-  async sendMoney(@currentUser() user: userType, @Body() body: any) {
+  async sendMoney(@currentUser() sender: userType, @Body() body: any) {
     let senderAccount: accountType;
     if (body.accountId) {
       senderAccount = await this.accountService.getAccountById(
-        user._id,
+        sender._id,
         body.accountId,
         EaccountType.OWNER,
       );
     } else {
       senderAccount = await this.accountService.checkDefaultAcc(
-        user,
+        sender,
         EaccountType.OWNER,
       );
     }
@@ -58,10 +61,17 @@ export class TransactionsController {
       EaccountType.RECEIVER,
     );
 
-    return this.transactionsService.sendMoney(
+    const transaction = await this.transactionsService.sendMoney(
       senderAccount,
       receiveAccount,
       body.amount,
+    );
+
+    return this.notificationService.sendOrRecieve(
+      sender,
+      receiver,
+      transaction._id,
+      transaction.amount,
     );
   }
 
@@ -86,33 +96,111 @@ export class TransactionsController {
     return this.transactionsService.changeDefaultAcc(user, account);
   }
 
-  @Post('recieve-money')
-  async recieveMoney(@currentUser() user: userType, @Body() body: any) {
+  @Post('request-recieve-money')
+  async reqRecieveMoney(@currentUser() reciever: userType, @Body() body: any) {
     let recieverAcc: accountType;
     if (body.accountId) {
       recieverAcc = await this.accountService.getAccountById(
-        user._id,
+        reciever._id,
         body.accountId,
         EaccountType.RECEIVER,
       );
     } else {
       recieverAcc = await this.accountService.checkDefaultAcc(
-        user,
+        reciever,
         EaccountType.RECEIVER,
       );
     }
 
-    const receiver = await this.userService.findUser({ email: body.email });
+    const sender = await this.userService.findUser({ email: body.email });
 
     const senderAcc = await this.accountService.checkDefaultAcc(
-      receiver,
+      sender,
       EaccountType.SENDER,
     );
 
-    return this.transactionsService.receiveMoney(
+    const transaction = await this.transactionsService.receiveMoney(
       senderAcc,
       recieverAcc,
       body.amount,
+    );
+
+    return this.notificationService.recieveRequest(
+      sender,
+      reciever,
+      transaction._id,
+      transaction.amount,
+    );
+  }
+
+  @Post('confirm-recieve/:transactionId')
+  async confirmRec(
+    @currentUser() sender: userType,
+    @Param('transactionId') transactionId: Types.ObjectId,
+    @Body() body: any,
+  ) {
+    const transaction = await this.transactionsService.getById(transactionId);
+
+    this.transactionsService.checkTransactionStatus(transaction);
+    this.transactionsService.checkTransactionOwner(transaction, sender);
+
+    let senderAccount: accountType;
+    if (body.accountId) {
+      senderAccount = await this.accountService.getAccountById(
+        sender._id,
+        body.accountId,
+        EaccountType.OWNER,
+      );
+    } else {
+      senderAccount = await this.accountService.checkDefaultAcc(
+        sender,
+        EaccountType.OWNER,
+      );
+    }
+
+    this.accountService.checkPIN(senderAccount, body.PIN);
+
+    senderAccount.checkAmount(transaction.amount);
+
+    const receiver = await this.userService.findUser({
+      id: transaction.recieverId,
+    });
+
+    const receiveAccount = await this.accountService.checkDefaultAcc(
+      receiver,
+      EaccountType.RECEIVER,
+    );
+
+    await this.transactionsService.confirmReceive(
+      senderAccount,
+      receiveAccount,
+      transaction,
+    );
+
+    return this.notificationService.sendOrRecieve(
+      sender,
+      receiver,
+      transaction._id,
+      transaction.amount,
+    );
+  }
+
+  @Post('reject-recieve/:transactionId')
+  async rejectRec(
+    @currentUser() sender: userType,
+    @Param('transactionId') transactionId: Types.ObjectId,
+  ) {
+    const transaction = await this.transactionsService.getById(transactionId);
+
+    this.transactionsService.checkTransactionStatus(transaction);
+
+    await this.transactionsService.rejectReceive(transaction);
+
+    return this.notificationService.rejectSend(
+      sender.email,
+      transaction.recieverId,
+      transaction._id,
+      transaction.amount,
     );
   }
 }

@@ -78,6 +78,6 @@ export class AccountController {
 
     this.accountService.checkPIN(account, pin);
 
-    return this.accountService.deleteAccount(account);
+    return this.accountService.deleteAccount(user, account);
   }
 }

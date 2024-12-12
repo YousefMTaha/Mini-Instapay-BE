@@ -22,6 +22,7 @@ export class AccountService {
     const accounts = await this._accountModel
       .find({ userId: user._id, _id: { $ne: user.defaultAcc } })
       .populate('cardId', 'cardNo')
+      .populate('bankId')
       .select('bankId userId');
 
     if (!accounts.length) throw new NotFoundException('No account exists');

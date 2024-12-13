@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,12 +18,16 @@ import { userstatus } from 'src/utils/Constants/user.constants';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
+    private reflector: Reflector,
     private jwtService: JwtService,
     private configService: ConfigService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (this.reflector.get<boolean>('skipAuth', context.getHandler()))
+      return true;
+
     const request = context.switchToHttp().getRequest();
 
     const { token } = request.headers;

@@ -108,6 +108,8 @@ export class AccountService {
 
   async checkPIN(user: userType, account: accountType, PIN: string) {
     if (account.wrongPIN == 4) {
+      console.log('send notification');
+
       await this.notificationService.wrongPIN(account);
     }
 
@@ -162,7 +164,6 @@ export class AccountService {
     if (!user.defaultAcc)
       throw new NotFoundException(`No default acc yet, Add one account`);
     const data = await user.populate('defaultAcc', ' bankId cardId');
-    console.log(data);
 
     return data;
   }

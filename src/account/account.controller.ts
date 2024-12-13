@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  SetMetadata,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -16,8 +17,8 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 import { CardService } from 'src/card/card.service';
 
-@Controller('account')
 @UseGuards(AuthGuard)
+@Controller('account')
 // useFilte(UnHandledExceptions)
 export class AccountController {
   constructor(
@@ -36,7 +37,7 @@ export class AccountController {
   }
 
   @Get('verifyAccountUser/:token')
-  @UseGuards()
+  @SetMetadata('skipAuth', true)
   resetTries(@Param('token') token: string) {
     return this.accountService.resetTries(token);
   }
@@ -49,7 +50,7 @@ export class AccountController {
   ) {
     const account = await this.accountService.getAccount(accountId);
 
-    await this.accountService.checkPIN(user,account, pin);
+    await this.accountService.checkPIN(user, account, pin);
 
     return {
       message: 'done',
@@ -82,7 +83,7 @@ export class AccountController {
   ) {
     const account = await this.accountService.getAccount(id);
 
-    await this.accountService.checkPIN(user,account, pin);
+    await this.accountService.checkPIN(user, account, pin);
 
     return this.accountService.deleteAccount(user, account);
   }

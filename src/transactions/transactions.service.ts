@@ -58,7 +58,7 @@ export class TransactionsService {
   }
 
   async checkNoOfTries(account: accountType, user: userType) {
-    if (account.checkNoOfTries()) {
+    if (!account.checkNoOfTries()) {
       const emailToken = this.JwtService.sign(
         { accountId: account._id },
         { secret: this.configService.get<string>('EXCEED_TRYS') },
@@ -71,6 +71,7 @@ export class TransactionsService {
           type.type === authTypes.TOKEN
         ) {
           sendBefore = true;
+
           if (type.expireAt > new Date()) {
             send = false;
           } else {
@@ -78,6 +79,7 @@ export class TransactionsService {
             type.expireAt = new Date(
               nowDate.setMinutes(nowDate.getMinutes() + 10),
             );
+            await user.save();
           }
           break;
         }
@@ -89,6 +91,7 @@ export class TransactionsService {
           type: authTypes.TOKEN,
           value: emailToken,
         });
+        await user.save();
       }
 
       if (send) await this.sendToken(emailToken, user.email);
@@ -100,13 +103,15 @@ export class TransactionsService {
   }
 
   async sendToken(emailToken: string, email: string) {
+    console.log('send Email');
+
     const url = `http://localhost:3000/account/verifyAccountUser/${emailToken}`;
     await this.mailService.sendEmail({
       to: email,
       subject: 'Reset PIN trys',
       html: `
       <h1> You entered PIN wrong many times on instapay </h1>
-      <h2> we want to ensure that the owner account who was trying.</h2>
+      <h2> we want to ensure that the account owner was trying.</h2>
       to continue to try enter the PIN <a href='${url}'> click this link </a>  
         `,
     });

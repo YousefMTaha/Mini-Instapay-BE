@@ -30,7 +30,7 @@ export class Transaction {
   @Prop({ enum: TransactionType })
   type: string;
 
-  @Prop({ required: true, min: 5 })
+  @Prop({ required: true, min: 1 })
   amount: number;
 
   @Prop({ type: Types.ObjectId, ref: 'Account', required: true })

@@ -113,8 +113,8 @@ export class AccountService {
       await this.notificationService.wrongPIN(account);
     }
 
+    await this.transactionService.checkNoOfTries(account, user);
     if (!compareSync(PIN, account.PIN)) {
-      await this.transactionService.checkNoOfTries(account, user);
       account.wrongPIN++;
       await account.save();
       throw new BadRequestException('invalid PIN');

@@ -103,8 +103,6 @@ export class TransactionsService {
   }
 
   async sendToken(emailToken: string, email: string) {
-    console.log('send Email');
-
     const url = `http://localhost:3000/account/verifyAccountUser/${emailToken}`;
     await this.mailService.sendEmail({
       to: email,

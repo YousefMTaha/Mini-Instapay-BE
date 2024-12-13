@@ -108,8 +108,6 @@ export class AccountService {
 
   async checkPIN(user: userType, account: accountType, PIN: string) {
     if (account.wrongPIN == 4) {
-      console.log('send notification');
-
       await this.notificationService.wrongPIN(account);
     }
 

@@ -18,7 +18,7 @@ import { CardService } from 'src/card/card.service';
 
 @Controller('account')
 @UseGuards(AuthGuard)
-@UseFilters(UnHandledExceptions)
+// useFilte(UnHandledExceptions)
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,
@@ -35,6 +35,12 @@ export class AccountController {
     return this.accountService.getDefault(user);
   }
 
+  @Get('verifyAccountUser/:token')
+  @UseGuards()
+  resetTries(@Param('token') token: string) {
+    return this.accountService.resetTries(token);
+  }
+
   @Post('balance/:accountId')
   async getBalance(
     @currentUser() user: userType,
@@ -43,7 +49,7 @@ export class AccountController {
   ) {
     const account = await this.accountService.getAccount(accountId);
 
-    this.accountService.checkPIN(account, pin);
+    await this.accountService.checkPIN(user,account, pin);
 
     return {
       message: 'done',
@@ -76,7 +82,7 @@ export class AccountController {
   ) {
     const account = await this.accountService.getAccount(id);
 
-    this.accountService.checkPIN(account, pin);
+    await this.accountService.checkPIN(user,account, pin);
 
     return this.accountService.deleteAccount(user, account);
   }

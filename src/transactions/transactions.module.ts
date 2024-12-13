@@ -19,5 +19,6 @@ import { MailService } from 'src/utils/email.service';
   ],
   controllers: [TransactionsController],
   providers: [TransactionsService, AccountService, MailService],
+  exports: [TransactionsService],
 })
 export class TransactionsModule {}

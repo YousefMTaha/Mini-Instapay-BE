@@ -21,7 +21,7 @@ import { EaccountType } from 'src/utils/Constants/system.constants';
 import { Types } from 'mongoose';
 import { NotificationService } from 'src/notification/notification.service';
 
-@UseFilters(UnHandledExceptions)
+// useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
 @Controller('transaction')
 export class TransactionsController {
@@ -48,7 +48,7 @@ export class TransactionsController {
       );
     }
 
-    this.accountService.checkPIN(senderAccount, body.PIN);
+    await this.accountService.checkPIN(sender, senderAccount, body.PIN);
 
     senderAccount.checkAmount(body.amount);
 
@@ -133,7 +133,6 @@ export class TransactionsController {
     );
   }
 
-  @UseFilters(UnHandledExceptions)
   @Post('confirm-recieve/:transactionId')
   async confirmRec(
     @currentUser() sender: userType,
@@ -162,7 +161,7 @@ export class TransactionsController {
       );
     }
 
-    this.accountService.checkPIN(senderAccount, body.PIN);
+    await this.accountService.checkPIN(sender, senderAccount, body.PIN);
 
     senderAccount.checkAmount(transaction.amount);
 
@@ -206,7 +205,6 @@ export class TransactionsController {
       sender.email,
       transaction.accRecieverId as Types.ObjectId,
       transaction._id,
-      transaction.amount,
     );
   }
 }

@@ -14,7 +14,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { Types } from 'mongoose';
 
 @UseGuards(AuthGuard)
-@UseFilters(UnHandledExceptions)
+// useFilte(UnHandledExceptions)
 @Controller('notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}

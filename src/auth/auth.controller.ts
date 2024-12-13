@@ -4,7 +4,7 @@ import { authForOptions } from 'src/utils/Constants/user.constants';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 
 @Controller('auth')
-@UseFilters(UnHandledExceptions)
+// useFilte(UnHandledExceptions)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

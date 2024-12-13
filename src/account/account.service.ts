@@ -11,11 +11,19 @@ import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
 import { accountErrMsg } from 'src/utils/Constants/system.constants';
 import { cardType } from 'src/schemas/card.schema';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { TransactionsService } from 'src/transactions/transactions.service';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(Account.name) private readonly _accountModel: Model<Account>,
+    private readonly transactionService: TransactionsService,
+    private readonly JwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async getAllAccounts(user: userType) {
@@ -98,8 +106,15 @@ export class AccountService {
     };
   }
 
-  checkPIN(account: accountType, PIN: string): void {
+  async checkPIN(user: userType, account: accountType, PIN: string) {
+    if (account.wrongPIN == 4) {
+      await this.notificationService.wrongPIN(account);
+    }
+
     if (!compareSync(PIN, account.PIN)) {
+      await this.transactionService.checkNoOfTries(account, user);
+      account.wrongPIN++;
+      await account.save();
       throw new BadRequestException('invalid PIN');
     }
   }
@@ -150,5 +165,21 @@ export class AccountService {
     console.log(data);
 
     return data;
+  }
+
+  async resetTries(token: string) {
+    const { accountId } = this.JwtService.verify(token, {
+      secret: this.configService.get<string>('EXCEED_TRYS'),
+    });
+
+    const account = await this._accountModel.findByIdAndUpdate(accountId, {
+      wrongPIN: 0,
+    });
+    if (!account) throw new NotFoundException('Invalid account');
+
+    return {
+      message: 'done',
+      status: true,
+    };
   }
 }

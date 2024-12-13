@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { accountType } from 'src/schemas/account.schema';
 import {
   Notification,
   notificationType,
@@ -86,7 +87,6 @@ export class NotificationService {
       userId: sender._id,
       type: EnotificationType.SEND,
       content: notificationMsg({ amount, destination: reciever.email })['Send'],
-      amount,
       transactionId,
     });
 
@@ -97,7 +97,6 @@ export class NotificationService {
       content: notificationMsg({ amount, destination: sender.email })[
         'Recieved'
       ],
-      amount,
       transactionId,
     });
 
@@ -120,7 +119,6 @@ export class NotificationService {
       content: notificationMsg({ amount, destination: reciever.email })[
         'requestSend'
       ],
-      amount,
       transactionId,
     });
 
@@ -134,14 +132,12 @@ export class NotificationService {
     senderEmail: string,
     recieverId: Types.ObjectId,
     transactionId: Types.ObjectId,
-    amount: number,
   ) {
     // For reciever
     await this.notificationModel.create({
       userId: recieverId,
       type: EnotificationType.REQUEST_SEND,
       content: notificationMsg({ destination: senderEmail })['rejectSend'],
-      amount,
       transactionId,
     });
 
@@ -151,5 +147,16 @@ export class NotificationService {
     };
   }
 
-  async wrongPIN(account) {}
+  async wrongPIN(account: accountType) {
+    await this.notificationModel.create({
+      userId: account.userId,
+      type: EnotificationType.WRONG_PIN,
+      content: notificationMsg()['wrongPin'],
+    });
+
+    return {
+      message: 'sended',
+      status: true,
+    };
+  }
 }

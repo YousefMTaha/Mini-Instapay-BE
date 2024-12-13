@@ -15,6 +15,7 @@ import {
   TransactionStatus,
   TransactionType,
 } from 'src/utils/Constants/transaction.constants';
+import { authForOptions, authTypes } from 'src/utils/Constants/user.constants';
 import { MailService } from 'src/utils/email.service';
 
 @Injectable()
@@ -62,33 +63,57 @@ export class TransactionsService {
         { accountId: account._id },
         { secret: this.configService.get<string>('EXCEED_TRYS') },
       );
+      let send = true;
+      let sendBefore = false;
+      for (const type of user.authTypes) {
+        if (
+          type.authFor === authForOptions.INVALID_PIN &&
+          type.type === authTypes.TOKEN
+        ) {
+          sendBefore = true;
+          if (type.expireAt > new Date()) {
+            send = false;
+          } else {
+            const nowDate = new Date();
+            type.expireAt = new Date(
+              nowDate.setMinutes(nowDate.getMinutes() + 10),
+            );
+          }
+          break;
+        }
+      }
 
-      const url = `http://localhost:3000/transaction/verifyAccountUser/${emailToken}`;
-      await this.mailService.sendEmail({
-        to: user.email,
-        subject: 'Reset PIN trys',
-        html: `
-        <h1> You entered PIN wrong many times on instapay </h1>
-        <h2> we want to ensure that the owner account who was trying.</h2>
-        to continue to try enter the PIN <a href='${url}'> click this link </a>  
-          `,
-      });
+      if (!sendBefore) {
+        user.authTypes.push({
+          authFor: authForOptions.INVALID_PIN,
+          type: authTypes.TOKEN,
+          value: emailToken,
+        });
+      }
+
+      if (send) await this.sendToken(emailToken, user.email);
 
       throw new BadRequestException(
-        'You enterd the wrong PIN too many times, To continue trying, Check your email that linked with this account',
+        'You entered the wrong PIN too many times, To continue trying, Check your email that linked with this account',
       );
     }
   }
 
-  async resetTries(token: string) {
-    const { accountId } = this.JwtService.verify(token, {
-      secret: this.configService.get<string>('EXCEED_TRYS'),
+  async sendToken(emailToken: string, email: string) {
+    const url = `http://localhost:3000/account/verifyAccountUser/${emailToken}`;
+    await this.mailService.sendEmail({
+      to: email,
+      subject: 'Reset PIN trys',
+      html: `
+      <h1> You entered PIN wrong many times on instapay </h1>
+      <h2> we want to ensure that the owner account who was trying.</h2>
+      to continue to try enter the PIN <a href='${url}'> click this link </a>  
+        `,
     });
-
-    const account = await this.transactionModel.findById(accountId);
-    if (!account) throw new NotFoundException('invalid accountId');
-
-    // const 
+    return {
+      message: 'done',
+      status: true,
+    };
   }
 
   async changeDefaultAcc(user: userType, account: accountType) {

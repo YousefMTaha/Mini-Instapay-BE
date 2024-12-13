@@ -14,7 +14,7 @@ import { currentUser } from 'src/decorators/current-user.decortaor';
 import { userType } from 'src/schemas/user.schema';
 import { AuthService } from 'src/auth/auth.service';
 
-@UseFilters(UnHandledExceptions)
+// useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {

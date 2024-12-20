@@ -345,4 +345,116 @@ export class TransactionsService {
       },
     ]);
   }
+
+  async suspiciousTransaction(transactionId: Types.ObjectId) {
+    const transaction = await this.transactionModel
+      .findById(transactionId)
+      .populate({
+        path: 'accSenderId',
+        populate: {
+          path: 'userId',
+        },
+      })
+      .populate({
+        path: 'accRecieverId',
+        populate: {
+          path: 'userId',
+        },
+      });
+
+    if (!transaction) throw new NotFoundException('invalid transaction id');
+    if (transaction.status == TransactionStatus.SUSPICIOUS)
+      throw new BadRequestException('tansaction already reported before');
+    const senderAccount = transaction.accSenderId as accountType;
+    const sender = senderAccount.userId as userType;
+
+    const recieverAccount = transaction.accRecieverId as accountType;
+    const reciever = recieverAccount.userId as userType;
+
+    await this.mailService.sendEmail({
+      to: sender.email,
+      subject: 'Suspicious Transaction',
+      html: `
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Report - Suspicious Transaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        .header {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .report-content {
+            font-size: 16px;
+            color: #555;
+        }
+        .report-content p {
+            margin: 10px 0;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .info {
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>ADMIN REPORT</h1>
+        </div>
+        
+        <div class="report-content">
+            <p>Your transaction with this information was reported as <span class="highlight">suspicious</span>:</p>
+            <p><span class="info">Send to:</span> ${reciever.email}</p>
+            <p><span class="info">Amount:</span> ${transaction.amount} EGP</p>
+            <p><span class="info">Send time:</span> ${transaction.createdAt}</p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Admin Report System</p>
+        </div>
+    </div>
+
+</body>
+</html>
+      `,
+    });
+
+    transaction.status = TransactionStatus.SUSPICIOUS;
+    await transaction.save();
+
+    return {
+      message: 'Reported',
+      status: true,
+    };
+  }
 }

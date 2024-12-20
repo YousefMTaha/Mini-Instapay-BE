@@ -4,6 +4,7 @@ export enum TransactionStatus {
   SUCCESS = 'Success',
   PENDING = 'Pending',
   FAILED = 'Failed',
+  SUSPICIOUS = 'Suspicious',
 }
 
 export enum TransactionType {

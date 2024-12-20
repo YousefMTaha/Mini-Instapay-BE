@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { userType } from './user.schema';
 
 @Schema({ versionKey: false })
 export class Account {
@@ -11,7 +12,7 @@ export class Account {
   bankId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  userId: Types.ObjectId | userType;
 
   @Prop({ type: Types.ObjectId, ref: 'Card', required: true })
   cardId: Types.ObjectId;

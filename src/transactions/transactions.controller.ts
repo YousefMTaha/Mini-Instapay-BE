@@ -22,6 +22,7 @@ import { Types } from 'mongoose';
 import { NotificationService } from 'src/notification/notification.service';
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
+import { transactionType } from 'src/schemas/transaction.schema';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -141,7 +142,9 @@ export class TransactionsController {
     @Param('transactionId') transactionId: Types.ObjectId,
     @Body() body: any,
   ) {
-    const transaction = await this.transactionsService.getById(transactionId);
+    const transaction = (await this.transactionsService.getById(
+      transactionId,
+    )) as transactionType;
 
     const receiverAcc = (await transaction.populate('accRecieverId'))
       .accRecieverId as accountType;
@@ -168,7 +171,7 @@ export class TransactionsController {
     senderAccount.checkAmount(transaction.amount);
 
     const receiver = await this.userService.findUser({
-      id: receiverAcc.userId,
+      id: receiverAcc.userId as Types.ObjectId,
     });
 
     const receiveAccount = await this.accountService.checkDefaultAcc(
@@ -216,5 +219,13 @@ export class TransactionsController {
   @Get('admin')
   getAllTransactions() {
     return this.transactionsService.getAllTransacions();
+  }
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Post('admin/suspiciousTransaction')
+  suspiciousTransaction(@Body('transactionId') transactionId: Types.ObjectId) {
+    console.log(transactionId);
+
+    return this.transactionsService.suspiciousTransaction(transactionId);
   }
 }

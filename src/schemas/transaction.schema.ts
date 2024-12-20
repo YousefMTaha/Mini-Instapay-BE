@@ -40,6 +40,7 @@ export class Transaction {
   accRecieverId: Types.ObjectId | accountType;
 
   readonly _id: Types.ObjectId;
+  readonly createdAt?: Date;
 }
 
 const transactionSchema = SchemaFactory.createForClass(Transaction);

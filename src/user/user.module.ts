@@ -3,10 +3,11 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { userModel } from 'src/schemas/user.schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { MailService } from 'src/utils/email.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService,MailService],
   imports: [AuthModule, userModel],
   exports: [UserService],
 })

@@ -223,7 +223,7 @@ export class TransactionsService {
       accSenderId: senderAcc,
       accRecieverId: recAcc,
       amount,
-      status: TransactionStatus.BENDING,
+      status: TransactionStatus.PENDING,
       type: TransactionType.RECIEVE,
     });
   }
@@ -260,7 +260,7 @@ export class TransactionsService {
   }
 
   checkTransactionStatus(transaction: transactionType) {
-    if (transaction.status != TransactionStatus.BENDING) {
+    if (transaction.status != TransactionStatus.PENDING) {
       throw new BadRequestException('This transaction was closed');
     }
   }
@@ -272,5 +272,77 @@ export class TransactionsService {
     if (transactionSenderAcc.userId.toString() != sender._id.toString()) {
       throw new ForbiddenException("You aren't the sender of this transaction");
     }
+  }
+
+  async getAllTransacions() {
+    return await this.transactionModel.aggregate([
+      {
+        $lookup: {
+          from: 'accounts',
+          localField: 'accSenderId',
+          foreignField: '_id',
+          as: 'accSenderId',
+        },
+      },
+      { $unwind: '$accSenderId' },
+      {
+        $lookup: {
+          from: 'users',
+          foreignField: '_id',
+          localField: 'accSenderId.userId',
+          as: 'sender',
+          pipeline: [
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                userName: { $concat: ['$firstName', ' ', '$lastName'] },
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: 'accounts',
+          localField: 'accRecieverId',
+          foreignField: '_id',
+          as: 'accRecieverId',
+        },
+      },
+      { $unwind: '$accRecieverId' },
+      {
+        $lookup: {
+          from: 'users',
+          foreignField: '_id',
+          localField: 'accRecieverId.userId',
+          as: 'reciever',
+          pipeline: [
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                email: 1,
+                userName: { $concat: ['$firstName', ' ', '$lastName'] },
+                _id: 1,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: '$sender' },
+      { $unwind: '$reciever' },
+      {
+        $project: {
+          accSenderId: 0,
+          accRecieverId: 0,
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
   }
 }

@@ -20,6 +20,8 @@ import { accountType } from 'src/schemas/account.schema';
 import { EaccountType } from 'src/utils/Constants/system.constants';
 import { Types } from 'mongoose';
 import { NotificationService } from 'src/notification/notification.service';
+import { AuthorizationGuard } from 'src/guards/Authorization.guard';
+import { userRoles } from 'src/utils/Constants/user.constants';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -206,5 +208,13 @@ export class TransactionsController {
       transaction.accRecieverId as Types.ObjectId,
       transaction._id,
     );
+  }
+
+  // Admin
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Get('admin')
+  getAllTransactions() {
+    return this.transactionsService.getAllTransacions();
   }
 }

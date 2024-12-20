@@ -11,13 +11,16 @@ import { hashSync, compareSync } from 'bcryptjs';
 import {
   authForOptions,
   authTypes,
+  userRoles,
   userstatus,
 } from 'src/utils/Constants/user.constants';
+import { MailService } from 'src/utils/email.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private mailService: MailService,
   ) {}
 
   async getUser(user: userType) {
@@ -122,5 +125,36 @@ export class UserService {
     if (!user)
       throw new NotFoundException('No user found for this email or mobile');
     return user;
+  }
+
+  async getAll() {
+    return await this.userModel.find().select('-password -authTypes');
+  }
+
+  async bannedUser(userId: Types.ObjectId) {
+    const user = await this.findUser({ id: userId });
+    if (user.role === userRoles.Admin) {
+      throw new BadRequestException("You can't banned Admin");
+    }
+    if (user.status === userstatus.Suspended) {
+      throw new BadRequestException('Account already banned');
+    }
+
+    user.status = userstatus.Suspended;
+    await user.save();
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'Account Banned',
+      html: `
+      <h1> YOU ACCOUNT HAS BEEN BANNED BY ADMIN </h1>
+      You can replay to this email for more details
+      `,
+    });
+
+    return {
+      message: 'Suspended',
+      status: true,
+    };
   }
 }

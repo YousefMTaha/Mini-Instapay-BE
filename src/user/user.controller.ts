@@ -8,11 +8,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { currentUser } from 'src/decorators/current-user.decortaor';
 import { userType } from 'src/schemas/user.schema';
 import { AuthService } from 'src/auth/auth.service';
+import { AuthorizationGuard } from 'src/guards/Authorization.guard';
+import { userRoles } from 'src/utils/Constants/user.constants';
+import { Types } from 'mongoose';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -51,5 +53,19 @@ export class UserController {
   @Post('logout')
   logout(@currentUser() user: userType) {
     return this.userService.logout(user);
+  }
+
+  // admin
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Get('admin')
+  getAllusers() {
+    return this.userService.getAll();
+  }
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Post('admin/banned')
+  bannedUser(@Body('userId') userId: Types.ObjectId) {
+    return this.userService.bannedUser(userId);
   }
 }

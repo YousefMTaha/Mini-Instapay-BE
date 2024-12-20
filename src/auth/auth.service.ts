@@ -236,6 +236,12 @@ export class AuthService {
 
     const user = await this.userModel.findById(_id);
 
+    if (user.status == userstatus.Suspended) {
+      throw new ForbiddenException(
+        'Your account has been banned, please contact us',
+      );
+    }
+
     for (let value of user.authTypes) {
       if (
         value.authFor === authForOptions.PRE_LOGIN &&

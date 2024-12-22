@@ -16,6 +16,7 @@ import { userType } from 'src/schemas/user.schema';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 import { CardService } from 'src/card/card.service';
+import { Types } from 'mongoose';
 
 @UseGuards(AuthGuard)
 @Controller('account')
@@ -45,7 +46,7 @@ export class AccountController {
   @Post('balance/:accountId')
   async getBalance(
     @currentUser() user: userType,
-    @Param('accountId') accountId: string,
+    @Param('accountId') accountId: Types.ObjectId,
     @Body('PIN') pin: string,
   ) {
     const account = await this.accountService.getAccount(accountId);
@@ -79,7 +80,7 @@ export class AccountController {
   async delete(
     @Body('PIN') pin: string,
     @currentUser() user: userType,
-    @Param('id') id: string,
+    @Param('id') id: Types.ObjectId,
   ) {
     const account = await this.accountService.getAccount(id);
 

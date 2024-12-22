@@ -119,7 +119,7 @@ export class AccountService {
     }
   }
 
-  async getAccount(id: string): Promise<accountType> {
+  async getAccount(id: Types.ObjectId ): Promise<accountType> {
     const account = await this._accountModel.findById(id);
     if (!account) throw new NotFoundException('account not found');
 

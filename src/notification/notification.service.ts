@@ -10,6 +10,7 @@ import {
   Notification,
   notificationType,
 } from 'src/schemas/notification.schema';
+import { transactionType } from 'src/schemas/transaction.schema';
 import { userType } from 'src/schemas/user.schema';
 import {
   notificationMsg,
@@ -158,5 +159,53 @@ export class NotificationService {
       message: 'sended',
       status: true,
     };
+  }
+
+  async requestRefund(
+    user: userType,
+    transaction: transactionType,
+    reason: string,
+    admins: userType[],
+  ) {
+    for (const admin of admins) {
+      await this.notificationModel.create({
+        transactionId: transaction._id,
+        content: `'${user.email}' request to refund transaction (${transaction._id}) with ${transaction.amount} EGP for this reason: ${reason}`,
+        type: EnotificationType.REQUEST_REFUND,
+        userId: admin._id,
+      });
+    }
+  }
+
+  async approveRefund(
+    transaction: transactionType,
+    sender: userType,
+    reciever: userType,
+  ) {
+    await this.notificationModel.create({
+      transactionId: transaction._id,
+      content: `Your request to refund ${transaction.amount} EGP from ${reciever.email} approved by admin, check your balance`,
+      type: EnotificationType.REQUEST_REFUND,
+      userId: sender._id,
+    });
+    await this.notificationModel.create({
+      transactionId: transaction._id,
+      content: `The recieved amout: ${transaction.amount} EGP that was from ${sender.email} was refunded by admin`,
+      type: EnotificationType.REQUEST_REFUND,
+      userId: reciever._id,
+    });
+  }
+
+  async rejectRefund(
+    transaction: transactionType,
+    senderId: Types.ObjectId,
+    reciever: userType,
+  ) {
+    await this.notificationModel.create({
+      transactionId: transaction._id,
+      content: `Your request to refund ${transaction.amount} EGP from ${reciever.email} rejected by admin`,
+      type: EnotificationType.REQUEST_REFUND,
+      userId: senderId,
+    });
   }
 }

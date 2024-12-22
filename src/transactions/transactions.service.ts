@@ -457,4 +457,59 @@ export class TransactionsService {
       status: true,
     };
   }
+
+  async requestRefund(transaction: transactionType) {
+    transaction.status = TransactionStatus.REFUNDING;
+    await transaction.save();
+    return {
+      message: 'Waiting for admin to aprove',
+      status: true,
+    };
+  }
+
+  checkForRefund(transaction: transactionType, loginUser?: boolean) {
+    if (loginUser) {
+      if (transaction.status == TransactionStatus.REFUNDING)
+        throw new BadRequestException(
+          'You already request to refund, wait for admin to approve',
+        );
+      if (transaction.status == TransactionStatus.REFUNDED)
+        throw new BadRequestException(
+          'This transaction already refunded before',
+        );
+    } else {
+      if (transaction.status != TransactionStatus.REFUNDING) {
+        throw new BadRequestException('Transaction already solved before');
+      }
+    }
+  }
+
+  async approveRefund(
+    transaction: transactionType,
+    senderAcc: accountType,
+    recieverAcc: accountType,
+  ) {
+    senderAcc.Balance += transaction.amount;
+    await senderAcc.save();
+
+    recieverAcc.Balance -= transaction.amount;
+    await recieverAcc.save();
+
+    transaction.status = TransactionStatus.REFUNDED;
+    await transaction.save();
+    return {
+      message: 'Refunded',
+      status: true,
+    };
+  }
+
+  async rejectRefund(transaction: transactionType) {
+    transaction.status = TransactionStatus.SUCCESS;
+    await transaction.save();
+
+    return {
+      message: 'Rejected',
+      status: true,
+    };
+  }
 }

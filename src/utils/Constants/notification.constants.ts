@@ -3,6 +3,9 @@ export enum EnotificationType {
   RECIEVE = 'Recieve',
   REQUEST_SEND = 'Request_Send',
   WRONG_PIN = 'Wrong_PIN',
+  REQUEST_REFUND = 'Request_Refund',
+  REJECT_REFUND = 'Reject_Refund',
+  REFUNDED = 'Refunded',
 }
 
 export const notificationMsg = ({

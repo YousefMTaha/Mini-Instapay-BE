@@ -23,6 +23,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { transactionType } from 'src/schemas/transaction.schema';
+import { TransactionStatus } from 'src/utils/Constants/transaction.constants';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -35,6 +36,7 @@ export class TransactionsController {
     private readonly notificationService: NotificationService,
   ) {}
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Post('/send-money')
   async sendMoney(@currentUser() sender: userType, @Body() body: any) {
     let senderAccount: accountType;
@@ -78,11 +80,13 @@ export class TransactionsController {
     );
   }
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Get('history')
   getHistory(@currentUser() user: userType) {
     return this.transactionsService.getHistory(user);
   }
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Patch('change-default')
   async changeDefault(
     @currentUser() user: userType,
@@ -99,6 +103,7 @@ export class TransactionsController {
     return this.transactionsService.changeDefaultAcc(user, account);
   }
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Post('request-recieve-money')
   async reqRecieveMoney(@currentUser() reciever: userType, @Body() body: any) {
     let recieverAcc: accountType;
@@ -136,6 +141,7 @@ export class TransactionsController {
     );
   }
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Post('confirm-recieve/:transactionId')
   async confirmRec(
     @currentUser() sender: userType,
@@ -193,6 +199,7 @@ export class TransactionsController {
     );
   }
 
+  @UseGuards(new AuthorizationGuard(userRoles.User))
   @Post('reject-recieve/:transactionId')
   async rejectRec(
     @currentUser() sender: userType,
@@ -213,8 +220,28 @@ export class TransactionsController {
     );
   }
 
-  // Admin
+  @UseGuards(new AuthorizationGuard(userRoles.User))
+  @Post('request-refund')
+  async requestRefund(@currentUser() user: userType, @Body() data: any) {
+    const { transactionId, reason } = data;
+    const transaction = await this.transactionsService.getById(transactionId);
 
+    await this.transactionsService.checkTransactionOwner(transaction, user);
+    this.transactionsService.checkForRefund(transaction, true);
+
+    const admins = await this.userService.getAllAdmins();
+
+    await this.notificationService.requestRefund(
+      user,
+      transaction,
+      reason,
+      admins,
+    );
+
+    return this.transactionsService.requestRefund(transaction);
+  }
+
+  // Admin
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Get('admin')
   getAllTransactions() {
@@ -224,8 +251,58 @@ export class TransactionsController {
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Post('admin/suspiciousTransaction')
   suspiciousTransaction(@Body('transactionId') transactionId: Types.ObjectId) {
-    console.log(transactionId);
-
     return this.transactionsService.suspiciousTransaction(transactionId);
+  }
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Post('admin/approve-refund')
+  async approveRefund(@Body('transactionId') transationId: Types.ObjectId) {
+    const transaction = await this.transactionsService.getById(transationId);
+
+    this.transactionsService.checkForRefund(transaction);
+
+    const recieverAcc = await this.accountService.getAccount(
+      transaction.accRecieverId as Types.ObjectId,
+    );
+    const senderAcc = await this.accountService.getAccount(
+      transaction.accSenderId as Types.ObjectId,
+    );
+
+    const reciever = (await recieverAcc.populate('userId')).userId as userType;
+    const sender = (await senderAcc.populate('userId')).userId as userType;
+
+    await this.notificationService.approveRefund(transaction, sender, reciever);
+
+    return this.transactionsService.approveRefund(
+      transaction,
+      senderAcc,
+      recieverAcc,
+    );
+  }
+
+  @UseGuards(new AuthorizationGuard(userRoles.Admin))
+  @Post('admin/reject-refund')
+  async rejectRefund(@Body('transactionId') transationId: Types.ObjectId) {
+    const transaction = await this.transactionsService.getById(transationId);
+
+    this.transactionsService.checkForRefund(transaction);
+
+    const recieverAcc = await this.accountService.getAccount(
+      transaction.accRecieverId as Types.ObjectId,
+    );
+    const senderAcc = await this.accountService.getAccount(
+      transaction.accSenderId as Types.ObjectId,
+    );
+
+    const reciever = (await recieverAcc.populate('userId')).userId as userType;
+    const sender = (await senderAcc.populate('userId')).userId as userType;
+
+    await this.notificationService.rejectRefund(
+      transaction,
+      sender._id,
+      reciever,
+    );
+
+    return this.transactionsService.rejectRefund(transaction);
   }
 }

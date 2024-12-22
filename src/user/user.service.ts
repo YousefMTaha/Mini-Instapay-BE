@@ -157,4 +157,10 @@ export class UserService {
       status: true,
     };
   }
+
+  async getAllAdmins() {
+    const admins = await this.userModel.find({ role: userRoles.Admin });
+    if (!admins.length) throw new NotFoundException('There is No admins Yet');
+    return admins;
+  }
 }

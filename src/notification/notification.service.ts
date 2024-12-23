@@ -56,8 +56,7 @@ export class NotificationService {
   }
 
   async markAsRead(notification: notificationType) {
-    notification.isRead = true;
-    await notification.save();
+    await notification.updateOne({ isRead: true });
     return {
       message: 'done',
       status: true,

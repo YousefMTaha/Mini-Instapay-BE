@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { UnHandledExceptions } from './filters/unhandeldErrors.filter';
 
 async function bootstrap() {

@@ -1,14 +1,11 @@
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/modules/user/user.service';
 import { Server } from 'socket.io';
-import { EnotificationType } from 'src/utils/Constants/notification.constants';
 import { notificationType } from 'src/schemas/notification.schema';
 
 @WebSocketGateway({ cors: true })

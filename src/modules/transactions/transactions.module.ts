@@ -4,9 +4,9 @@ import { TransactionsController } from './transactions.controller';
 import transactionModel from 'src/schemas/transaction.schema';
 import accountModel from 'src/schemas/account.schema';
 import { userModel } from 'src/schemas/user.schema';
-import { AccountService } from 'src/account/account.service';
-import { UserModule } from 'src/user/user.module';
-import { NotificationModule } from 'src/notification/notification.module';
+import { AccountService } from 'src/modules/account/account.service';
+import { UserModule } from 'src/modules/user/user.module';
+import { NotificationModule } from 'src/modules/notification/notification.module';
 import { MailService } from 'src/utils/email.service';
 
 @Module({

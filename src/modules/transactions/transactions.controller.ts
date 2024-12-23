@@ -6,24 +6,21 @@ import {
   Param,
   Patch,
   Post,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { currentUser } from 'src/decorators/current-user.decortaor';
-import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { userType } from 'src/schemas/user.schema';
-import { UserService } from 'src/user/user.service';
-import { AccountService } from 'src/account/account.service';
+import { UserService } from 'src/modules/user/user.service';
+import { AccountService } from 'src/modules/account/account.service';
 import { accountType } from 'src/schemas/account.schema';
 import { EaccountType } from 'src/utils/Constants/system.constants';
 import { Types } from 'mongoose';
-import { NotificationService } from 'src/notification/notification.service';
+import { NotificationService } from 'src/modules/notification/notification.service';
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { transactionType } from 'src/schemas/transaction.schema';
-import { TransactionStatus } from 'src/utils/Constants/transaction.constants';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)

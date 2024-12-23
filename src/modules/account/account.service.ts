@@ -1,7 +1,5 @@
 import {
-  BadGatewayException,
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,8 +12,8 @@ import { accountErrMsg } from 'src/utils/Constants/system.constants';
 import { cardType } from 'src/schemas/card.schema';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { TransactionsService } from 'src/transactions/transactions.service';
-import { NotificationService } from 'src/notification/notification.service';
+import { TransactionsService } from 'src/modules/transactions/transactions.service';
+import { NotificationService } from 'src/modules/notification/notification.service';
 
 @Injectable()
 export class AccountService {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { RealtimeGateway } from './realtime.gateway';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from 'src/modules/user/user.module';
 
 @Module({
   imports: [UserModule],

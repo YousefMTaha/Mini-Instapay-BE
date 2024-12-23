@@ -1,9 +1,9 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { RealtimeGateway } from 'src/realtime/realtime.gateway';
-import { RealtimeModule } from 'src/realtime/realtime.module';
-import { UserModule } from 'src/user/user.module';
-import { UserService } from 'src/user/user.service';
+import { RealtimeGateway } from 'src/modules/realtime/realtime.gateway';
+import { RealtimeModule } from 'src/modules/realtime/realtime.module';
+import { UserModule } from 'src/modules/user/user.module';
+import { UserService } from 'src/modules/user/user.service';
 import { EnotificationType } from 'src/utils/Constants/notification.constants';
 
 @Schema({ versionKey: false, timestamps: { updatedAt: false } })

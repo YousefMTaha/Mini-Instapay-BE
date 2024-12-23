@@ -1,20 +1,9 @@
-import {
-  InjectModel,
-  MongooseModule,
-  Prop,
-  Schema,
-  SchemaFactory,
-} from '@nestjs/mongoose';
-import { Document, Model, Types } from 'mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 import {
   TransactionStatus,
   TransactionType,
 } from 'src/utils/Constants/transaction.constants';
-
-import { UserService } from 'src/user/user.service';
-import { UserModule } from 'src/user/user.module';
-import { NotificationService } from 'src/notification/notification.service';
-import { NotificationModule } from 'src/notification/notification.module';
 import { accountType } from './account.schema';
 
 @Schema({
@@ -45,22 +34,10 @@ export class Transaction {
 
 const transactionSchema = SchemaFactory.createForClass(Transaction);
 
-const transactionModel = MongooseModule.forFeatureAsync([
+const transactionModel = MongooseModule.forFeature([
   {
     name: 'Transaction',
-    useFactory: (
-      UserService: UserService,
-      notificationService: NotificationService,
-    ) => {
-      // transactionSchema.post('save', async function (doc) {
-
-      // });
-
-      return transactionSchema;
-    },
-
-    imports: [UserModule, NotificationModule],
-    inject: [UserService, NotificationService],
+    schema: transactionSchema,
   },
 ]);
 

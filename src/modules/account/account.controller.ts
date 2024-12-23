@@ -7,15 +7,13 @@ import {
   Patch,
   Post,
   SetMetadata,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { currentUser } from 'src/decorators/current-user.decortaor';
 import { userType } from 'src/schemas/user.schema';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
-import { CardService } from 'src/card/card.service';
+import { CardService } from 'src/modules/card/card.service';
 import { Types } from 'mongoose';
 import { EaccountType } from 'src/utils/Constants/system.constants';
 

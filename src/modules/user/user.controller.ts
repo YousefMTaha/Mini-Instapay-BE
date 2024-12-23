@@ -11,10 +11,10 @@ import { UserService } from './user.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { currentUser } from 'src/decorators/current-user.decortaor';
 import { userType } from 'src/schemas/user.schema';
-import { AuthService } from 'src/auth/auth.service';
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { Types } from 'mongoose';
+import { AuthService } from 'src/modules/auth/auth.service';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)

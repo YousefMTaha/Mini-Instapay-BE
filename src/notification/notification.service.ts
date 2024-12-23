@@ -46,8 +46,7 @@ export class NotificationService {
     const notifications = await this.notificationModel
       .find({ userId })
       .sort('-createdAt');
-    if (!notifications.length)
-      throw new NotFoundException('There is no notifications yet');
+
     return {
       messge: 'done',
       status: true,

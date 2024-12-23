@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ConflictException,
   Injectable,
@@ -72,23 +73,12 @@ export class AccountService {
     };
   }
 
-  async updatePIN(body: any, user: userType, id: string) {
-    // check if credit card number exist before
-    const checkCard = await this._accountModel.findById(id);
-    if (checkCard) {
-      throw new ConflictException('Card already linked with another account');
-    }
-
-    await this._accountModel.create({
-      BankId: body.bankId,
-      userId: user._id,
-      cardNo: body.cardNo,
-      date: body.date,
-      CVV: hashSync(body.CVV, 9),
-    });
+  async updatePIN(body: any, account: accountType) {
+    account.PIN = hashSync(body.newPIN, 10);
+    await account.save();
 
     return {
-      message: 'car added',
+      message: 'PIN updated',
       status: true,
     };
   }
@@ -119,7 +109,7 @@ export class AccountService {
     }
   }
 
-  async getAccount(id: Types.ObjectId ): Promise<accountType> {
+  async getAccount(id: Types.ObjectId): Promise<accountType> {
     const account = await this._accountModel.findById(id);
     if (!account) throw new NotFoundException('account not found');
 

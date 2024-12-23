@@ -17,6 +17,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 import { CardService } from 'src/card/card.service';
 import { Types } from 'mongoose';
+import { EaccountType } from 'src/utils/Constants/system.constants';
 
 @UseGuards(AuthGuard)
 @Controller('account')
@@ -67,14 +68,20 @@ export class AccountController {
     return this.accountService.addAccount(body, user, card.data);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Body() body: any,
-  //   @currentUser() user: userType,
-  //   @Param('id') id: string,
-  // ) {
-  //   return this.accountService.updatePIN(body, user, id);
-  // }
+  @Patch(':id')
+  async update(
+    @Body() body: any,
+    @Param('id') id: Types.ObjectId,
+    @currentUser() user: userType,
+  ) {
+    const account = await this.accountService.getAccountById(
+      user._id,
+      id,
+      EaccountType.OWNER,
+    );
+    await this.accountService.checkPIN(user, account, body.oldPIN);
+    return this.accountService.updatePIN(body, account);
+  }
 
   @Delete(':id')
   async delete(

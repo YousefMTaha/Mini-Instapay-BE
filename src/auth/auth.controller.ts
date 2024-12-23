@@ -1,7 +1,6 @@
 import { Body, Controller, Patch, Post, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { authForOptions } from 'src/utils/Constants/user.constants';
-import { UnHandledExceptions } from 'src/filters/unhandeldErrors.filter';
 
 @Controller('auth')
 // useFilte(UnHandledExceptions)

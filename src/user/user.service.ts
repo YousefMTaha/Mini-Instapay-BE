@@ -163,4 +163,8 @@ export class UserService {
     if (!admins.length) throw new NotFoundException('There is No admins Yet');
     return admins;
   }
+
+  async updateSocketId(userId: string, socketId: string) {
+    await this.userModel.findByIdAndUpdate(userId, { socketId });
+  }
 }

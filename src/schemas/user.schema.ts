@@ -80,6 +80,9 @@ export class User {
   @Prop({ type: Types.ObjectId, ref: 'Account' })
   defaultAcc: accountType | Types.ObjectId;
 
+  @Prop({ type: String })
+  socketId: string;
+
   readonly _id: Types.ObjectId;
 }
 

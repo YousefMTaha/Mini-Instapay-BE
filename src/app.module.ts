@@ -12,6 +12,7 @@ import { BankModule } from './bank/bank.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { NotificationModule } from './notification/notification.module';
 import { CardModule } from './card/card.module';
+import { RealtimeModule } from './realtime/realtime.module';
 @Module({
   imports: [
     AuthModule,
@@ -44,6 +45,7 @@ import { CardModule } from './card/card.module';
     TransactionsModule,
     NotificationModule,
     CardModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

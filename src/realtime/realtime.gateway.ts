@@ -31,23 +31,11 @@ export class RealtimeGateway
     const socketId = client.id;
 
     await this.userService.updateSocketId(userId, socketId);
-
-    // this.server.emit('responed', {
-    //   message: 'connected',
-    //   userId: client.handshake.auth.userId,
-    // });
-
-    // // console.log(client);
   }
 
   handleDisconnect(client: any) {
     console.log(`connection discount`);
     // console.log(client);
-  }
-
-  @SubscribeMessage('send_notification')
-  handelEvents(@MessageBody() notification: EnotificationType) {
-    console.log(notification);
   }
 
   sendNotification(socketId: string, content: notificationType) {

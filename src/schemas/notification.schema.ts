@@ -34,11 +34,8 @@ const notificationModel = MongooseModule.forFeatureAsync([
     useFactory(notificationGateWay: RealtimeGateway, userService: UserService) {
       notificationSchema.post('save', async function () {
         const user = await userService.findUser({ id: this.userId });
-        if (user.socketId || notificationGateWay.socketId) {
-          notificationGateWay.sendNotification(
-            user.socketId || notificationGateWay.socketId,
-            this,
-          );
+        if (user.socketId) {
+          notificationGateWay.sendNotification(user.socketId, this);
         }
       });
 

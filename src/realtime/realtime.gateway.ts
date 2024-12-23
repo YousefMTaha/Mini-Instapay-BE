@@ -27,7 +27,7 @@ export class RealtimeGateway
     console.log(client.id);
     this.clientId = client.id;
 
-    const userId = client.handshake.userId;
+    const userId = client.handshake.auth.userId;
     const socketId = client.id;
 
     await this.userService.updateSocketId(userId, socketId);
@@ -40,7 +40,7 @@ export class RealtimeGateway
 
   sendNotification(socketId: string, content: notificationType) {
     try {
-      this.server.emit('notification', content);
+      this.server.to([socketId]).emit('notification', content);
     } catch (error) {
       console.log(error);
     }

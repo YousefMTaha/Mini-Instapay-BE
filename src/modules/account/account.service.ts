@@ -14,6 +14,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TransactionsService } from 'src/modules/transactions/transactions.service';
 import { NotificationService } from 'src/modules/notification/notification.service';
+import {
+  limitType,
+  ONE_DAY_MILLI,
+  ONE_WEEK_MILLI,
+} from 'src/utils/Constants/account.constanta';
 
 @Injectable()
 export class AccountService {
@@ -166,6 +171,41 @@ export class AccountService {
 
     return {
       message: 'done',
+      status: true,
+    };
+  }
+
+  async checkLimit(amount: number, account: accountType) {
+    const remainLimit = account.limit.amount - account.limit.spent;
+    if (remainLimit < amount) {
+      await this.notificationService.exceedLimit(
+        amount,
+        account.userId as Types.ObjectId,
+      );
+
+      throw new BadRequestException(
+        `You will exceed the ${account.limit.type} limit. You only have ${remainLimit} EGP to spend`,
+      );
+    }
+  }
+
+  async updateLimit(account: accountType, body: any) {
+    const { amount, type } = body;
+
+    const endDate =
+      type == limitType.DAILY
+        ? Date.now() + ONE_DAY_MILLI
+        : Date.now() + ONE_WEEK_MILLI;
+
+    await account.updateOne({
+      'limit.amount': amount,
+      'limit.spent': 0,
+      'limit.type': type,
+      'limit.endDate': endDate,
+    });
+
+    return {
+      message: 'Updated',
       status: true,
     };
   }

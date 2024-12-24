@@ -5,6 +5,9 @@ import {
   TransactionType,
 } from 'src/utils/Constants/transaction.constants';
 import { accountType } from './account.schema';
+import { NotificationService } from 'src/modules/notification/notification.service';
+import { NotificationModule } from 'src/modules/notification/notification.module';
+import { cardType } from './card.schema';
 
 @Schema({
   versionKey: false,
@@ -34,10 +37,30 @@ export class Transaction {
 
 const transactionSchema = SchemaFactory.createForClass(Transaction);
 
-const transactionModel = MongooseModule.forFeature([
+const transactionModel = MongooseModule.forFeatureAsync([
   {
     name: 'Transaction',
-    schema: transactionSchema,
+    useFactory(notificationService: NotificationService) {
+      transactionSchema.post('save', async function () {
+        const senderAccount = (await this.populate('accSenderId'))
+          .accSenderId as accountType;
+        if (senderAccount.Balance < 200) {
+          const card = (await senderAccount.populate('cardId'))
+            .cardId as cardType;
+
+          await notificationService.lowBalance(
+            card.cardNo,
+            senderAccount.userId as Types.ObjectId,
+          );
+        }
+
+        await senderAccount.updateOne({ $inc: { 'limit.spent': this.amount } });
+      });
+
+      return transactionSchema;
+    },
+    inject: [NotificationService],
+    imports: [NotificationModule],
   },
 ]);
 

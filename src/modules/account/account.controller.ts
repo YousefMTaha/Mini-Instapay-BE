@@ -66,15 +66,30 @@ export class AccountController {
     return this.accountService.addAccount(body, user, card.data);
   }
 
-  @Patch(':id')
-  async update(
+  @Patch('limit/:id')
+  async updateLimit(
+    @currentUser() user: userType,
     @Body() body: any,
-    @Param('id') id: Types.ObjectId,
+    @Param('id') accountId: Types.ObjectId,
+  ) {
+    const account = await this.accountService.getAccountById(
+      user._id,
+      accountId,
+      EaccountType.OWNER,
+    );
+
+    return this.accountService.updateLimit(account, body);
+  }
+
+  @Patch('PIN/:id')
+  async updatePIN(
+    @Body() body: any,
+    @Param('id') accountId: Types.ObjectId,
     @currentUser() user: userType,
   ) {
     const account = await this.accountService.getAccountById(
       user._id,
-      id,
+      accountId,
       EaccountType.OWNER,
     );
     await this.accountService.checkPIN(user, account, body.oldPIN);

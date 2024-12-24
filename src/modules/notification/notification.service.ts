@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { accountType } from 'src/schemas/account.schema';
+import { cardType } from 'src/schemas/card.schema';
 import {
   Notification,
   notificationType,
@@ -204,6 +205,24 @@ export class NotificationService {
       content: `Your request to refund ${transaction.amount} EGP from ${reciever.email} rejected by admin`,
       type: EnotificationType.REQUEST_REFUND,
       userId: senderId,
+    });
+  }
+
+  async exceedLimit(amount: number, senderId: Types.ObjectId) {
+    await this.notificationModel.create({
+      content: `The last transaction with ${amount} EGP was failed because you will exceed the limit`,
+      type: EnotificationType.REQUEST_REFUND,
+      userId: senderId,
+    });
+  }
+
+  async lowBalance(cardNo: string, senderId: Types.ObjectId) {
+    const lastDigits = cardNo.substring(cardNo.length - 4);
+    await this.notificationModel.create({
+      content: `NOTE! The balance of your account with card number **** **** **** ${lastDigits} below 200 EGP`,
+      type: EnotificationType.LOW_BALANCE,
+      userId: senderId,
+      // createdAt: Date.now() + 1000,
     });
   }
 }

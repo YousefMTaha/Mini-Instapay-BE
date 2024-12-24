@@ -6,6 +6,8 @@ export enum EnotificationType {
   REQUEST_REFUND = 'Request_Refund',
   REJECT_REFUND = 'Reject_Refund',
   REFUNDED = 'Refunded',
+  EXCCED_LIMIT = 'Exceed_Limit',
+  LOW_BALANCE = 'Low_Balance',
 }
 
 export const notificationMsg = ({

@@ -53,6 +53,7 @@ export class TransactionsController {
     await this.accountService.checkPIN(sender, senderAccount, body.PIN);
 
     senderAccount.checkAmount(body.amount);
+    await this.accountService.checkLimit(body.amount, senderAccount);
 
     const receiver = await this.userService.findUser({
       data: body.receiverData,
@@ -172,6 +173,7 @@ export class TransactionsController {
     await this.accountService.checkPIN(sender, senderAccount, body.PIN);
 
     senderAccount.checkAmount(transaction.amount);
+    await this.accountService.checkLimit(transaction.amount, senderAccount);
 
     const receiver = await this.userService.findUser({
       id: receiverAcc.userId as Types.ObjectId,

@@ -211,7 +211,7 @@ export class NotificationService {
   async exceedLimit(amount: number, senderId: Types.ObjectId) {
     await this.notificationModel.create({
       content: `The last transaction with ${amount} EGP was failed because you will exceed the limit`,
-      type: EnotificationType.REQUEST_REFUND,
+      type: EnotificationType.EXCCED_LIMIT,
       userId: senderId,
     });
   }

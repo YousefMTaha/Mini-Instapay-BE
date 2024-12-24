@@ -112,7 +112,7 @@ export class AuthService {
     return { message: 'Email confirmed', status: true };
   }
 
-  private checkForSendOTPDuration(time: Date) {
+  checkForSendOTPDuration(time: Date) {
     const nowDateInMill = Date.now();
     const expireAtInMill = Date.parse(time.toUTCString());
 

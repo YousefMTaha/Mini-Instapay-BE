@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,7 +9,10 @@ import { Model, Types } from 'mongoose';
 import { Account, accountType } from 'src/schemas/account.schema';
 import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
-import { accountErrMsg } from 'src/utils/Constants/system.constants';
+import {
+  accountErrMsg,
+  EaccountType,
+} from 'src/utils/Constants/system.constants';
 import { cardType } from 'src/schemas/card.schema';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -19,6 +23,10 @@ import {
   ONE_DAY_MILLI,
   ONE_WEEK_MILLI,
 } from 'src/utils/Constants/account.constanta';
+import { customAlphabet } from 'nanoid';
+import { authForOptions, authTypes } from 'src/utils/Constants/user.constants';
+import { AuthService } from '../auth/auth.service';
+import { MailService } from 'src/utils/email.service';
 
 @Injectable()
 export class AccountService {
@@ -28,6 +36,8 @@ export class AccountService {
     private readonly JwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly notificationService: NotificationService,
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   async getAllAccounts(user: userType) {
@@ -206,6 +216,106 @@ export class AccountService {
 
     return {
       message: 'Updated',
+      status: true,
+    };
+  }
+
+  async forgetOTPMail(user: userType, account: accountType) {
+    const generateOTP = customAlphabet('0123456789', 6);
+
+    const OTP = generateOTP();
+
+    const userType = user.authTypes.find(
+      (ele) =>
+        ele.authFor == authForOptions.FORGET_PASSWORD &&
+        ele.type === authTypes.CODE,
+    );
+
+    if (!userType) {
+      user.authTypes.push({
+        type: authTypes.CODE,
+        authFor: authForOptions.FORGET_PIN,
+        value: hashSync(OTP, 9),
+      });
+    } else {
+      this.authService.checkForSendOTPDuration(userType.expireAt);
+      userType.value = hashSync(OTP, 9);
+      userType.expireAt = new Date().setMinutes(
+        new Date().getMinutes() + 10,
+      ) as unknown as Date;
+    }
+
+    await this.mailService.sendEmail({
+      to: user.email,
+      subject: 'Forget PIN',
+      html: `
+                <h1> This is your OTP for Forget PIN, The OTP valid for 10 mintues</h1>
+                <h2> ${OTP} </h2>
+                `,
+    });
+
+    const token = this.JwtService.sign(
+      { _id: user._id, accountId: account._id },
+      { secret: this.configService.get<string>('TOKEN_FORGET_PIN') },
+    );
+
+    await user.save();
+
+    return {
+      message: 'Email Sended',
+      status: true,
+      token,
+    };
+  }
+
+  async confirmOTPForgetPIN(token: string, user: userType, otp: string) {
+    const { accountId } = this.JwtService.verify(token, {
+      secret: this.configService.get<string>('TOKEN_FORGET_PIN'),
+    });
+
+    for (let type of user.authTypes) {
+      if (
+        type.authFor === authForOptions.FORGET_PIN &&
+        type.type === authTypes.CODE
+      ) {
+        if (!compareSync(otp.toString(), type.value || '1'))
+          throw new BadRequestException('Invalid OTP');
+
+        if (type.expireAt < new Date())
+          throw new BadRequestException('OTP Expired');
+
+        type.value = undefined;
+        break;
+      }
+    }
+
+    const resToken = this.JwtService.sign(
+      { accountId: accountId },
+      { secret: this.configService.get<string>('TOKEN_CONFIRM_OTP_FORGET') },
+    );
+
+    return {
+      message: 'Done',
+      status: true,
+      token: resToken,
+    };
+  }
+
+  async forgetPIN(user: userType, token: string, PIN: string) {
+    const { accountId } = this.JwtService.verify(token, {
+      secret: this.configService.get<string>('TOKEN_CONFIRM_OTP_FORGET'),
+    });
+
+    const account = await this.getAccountById(
+      user._id,
+      accountId,
+      EaccountType.OWNER,
+    );
+
+    await account.updateOne({ PIN: hashSync(PIN, 10) });
+
+    return {
+      message: 'updated',
       status: true,
     };
   }

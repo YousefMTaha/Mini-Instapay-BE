@@ -11,6 +11,8 @@ import { NotificationModule } from './notification/notification.module';
 import { CardModule } from './card/card.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AppService } from './app.service';
 @Module({
   imports: [
     AuthModule,
@@ -35,6 +37,7 @@ import { UserModule } from './user/user.module';
       },
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot({ cronJobs: true }),
     {
       module: JwtModule,
       global: true,
@@ -47,5 +50,6 @@ import { UserModule } from './user/user.module';
     CardModule,
     RealtimeModule,
   ],
+  providers: [AppService],
 })
 export class AppModule {}

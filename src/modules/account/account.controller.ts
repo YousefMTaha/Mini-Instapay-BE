@@ -108,4 +108,27 @@ export class AccountController {
 
     return this.accountService.deleteAccount(user, account);
   }
+
+  @Post('sendForgetPINOTP/:accountId')
+  async sendOTP(
+    @currentUser() user: userType,
+    @Param('accountId') accountId: Types.ObjectId,
+  ) {
+    const account = await this.accountService.getAccountById(
+      user._id,
+      accountId,
+      EaccountType.OWNER,
+    );
+    return this.accountService.forgetOTPMail(user, account);
+  }
+
+  @Post('confirmOTPforgetPIN')
+  async confirmOTPforgetPIN(@currentUser() user: userType, @Body() body: any) {
+    return this.accountService.confirmOTPForgetPIN(body.token, user, body.OTP);
+  }
+
+  @Patch('forgetPIN')
+  async forgetPIN(@currentUser() user: userType, @Body() body: any) {
+    return this.accountService.forgetPIN(user, body.token, body.PIN);
+  }
 }

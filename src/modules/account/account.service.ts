@@ -227,8 +227,7 @@ export class AccountService {
 
     const userType = user.authTypes.find(
       (ele) =>
-        ele.authFor == authForOptions.FORGET_PASSWORD &&
-        ele.type === authTypes.CODE,
+        ele.authFor == authForOptions.FORGET_PIN && ele.type === authTypes.CODE,
     );
 
     if (!userType) {

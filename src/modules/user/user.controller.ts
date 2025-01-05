@@ -15,6 +15,8 @@ import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { Types } from 'mongoose';
 import { AuthService } from 'src/modules/auth/auth.service';
+import { OTPDTO } from 'src/utils/common/common.dto';
+import { verifyEmailDTO } from '../auth/dto/verify-email.dto';
 
 // useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
@@ -46,8 +48,8 @@ export class UserController {
   }
 
   @Patch('confirmChangeEmail')
-  confirmChangeEmail(@Body('token') token: string, @Body('otp') otp: string) {
-    return this.authService.confirmUpdateMail(token, otp);
+  confirmChangeEmail(@Body() body: verifyEmailDTO) {
+    return this.authService.confirmUpdateMail(body.token, body.otp);
   }
 
   @Post('logout')

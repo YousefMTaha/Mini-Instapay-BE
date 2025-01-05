@@ -4,7 +4,7 @@ import { authForOptions } from 'src/utils/Constants/user.constants';
 import { SignupDTO } from './dto/signup.dto';
 import { PreLoginDTO } from './dto/pre-login.dto';
 import { EmailDTO, OTPDTO } from 'src/utils/common/common.dto';
-import { verifyEmailDTO } from './dto/verify-email.dto';
+import { VerifyEmailDTO } from './dto/verify-email.dto';
 import { ResendMailDTO } from './dto/resend-email.dto';
 import { LoginDTO } from './dto/login.dto';
 import { ConfirmOTPpasswordDTO } from './dto/confirm-otp-password.dto';
@@ -23,7 +23,7 @@ export class AuthController {
   }
 
   @Post('verifyEmail')
-  verifyEmail(@Body() body: verifyEmailDTO) {
+  verifyEmail(@Body() body: VerifyEmailDTO) {
     return this.authService.verifyEmail(body.token, body.otp);
   }
 

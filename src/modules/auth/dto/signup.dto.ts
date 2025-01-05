@@ -24,5 +24,5 @@ export class SignupDTO {
   email: string;
 
   @Matches(MOBILE_REGEX, { message: MOBILE_REGEX_MSG })
-  mobileNumber: number;
+  mobileNumber: string;
 }

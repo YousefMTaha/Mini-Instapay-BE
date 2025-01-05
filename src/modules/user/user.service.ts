@@ -15,6 +15,8 @@ import {
   userstatus,
 } from 'src/utils/Constants/user.constants';
 import { MailService } from 'src/utils/email.service';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdatePasswordDTO } from './dto/update-password.dto';
 
 @Injectable()
 export class UserService {
@@ -53,7 +55,7 @@ export class UserService {
     };
   }
 
-  async updateUser(user: userType, updateData: any) {
+  async updateUser(user: userType, updateData: UpdateUserDTO) {
     if (
       updateData.mobileNumber &&
       user.mobileNumber != updateData.mobileNumber
@@ -70,12 +72,8 @@ export class UserService {
     return { message: 'updated', status: true };
   }
 
-  async updatePassword(user: userType, body: any) {
+  async updatePassword(user: userType, body: UpdatePasswordDTO) {
     const { oldPassword, newPassword } = body;
-
-    if (oldPassword == newPassword) {
-      throw new BadRequestException('The password same as the old one');
-    }
 
     const currentUser = await this.userModel.findById(user._id);
 

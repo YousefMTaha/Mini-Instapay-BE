@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-  UseFilters,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { currentUser } from 'src/decorators/current-user.decortaor';
@@ -15,8 +7,13 @@ import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { Types } from 'mongoose';
 import { AuthService } from 'src/modules/auth/auth.service';
+import { VerifyEmailDTO } from '../auth/dto/verify-email.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdatePasswordDTO } from './dto/update-password.dto';
+import { EmailDTO } from 'src/utils/common/common.dto';
+import { ConfirmChangeEmailDTO } from '../auth/dto/confirm-change-email.dto';
+import { BannedUserDTO } from './dto/banned-user.dto';
 
-// useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
@@ -31,23 +28,26 @@ export class UserController {
   }
 
   @Patch()
-  updateUser(@currentUser() user: userType, @Body() body: any) {
+  updateUser(@currentUser() user: userType, @Body() body: UpdateUserDTO) {
     return this.userService.updateUser(user, body);
   }
 
   @Patch('updatePassword')
-  updatePassword(@currentUser() userData: userType, @Body() body: any) {
+  updatePassword(
+    @currentUser() userData: userType,
+    @Body() body: UpdatePasswordDTO,
+  ) {
     return this.userService.updatePassword(userData, body);
   }
 
   @Post('changeEmail')
-  updateEmail(@Body('email') email: string, @currentUser() user: userType) {
-    return this.authService.changeMail(user, email);
+  updateEmail(@Body() body: EmailDTO, @currentUser() user: userType) {
+    return this.authService.changeMail(user, body.email);
   }
 
   @Patch('confirmChangeEmail')
-  confirmChangeEmail(@Body('token') token: string, @Body('otp') otp: string) {
-    return this.authService.confirmUpdateMail(token, otp);
+  confirmChangeEmail(@Body() body: ConfirmChangeEmailDTO) {
+    return this.authService.confirmUpdateMail(body.token, body.otp);
   }
 
   @Post('logout')
@@ -65,7 +65,7 @@ export class UserController {
 
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Post('admin/banned')
-  bannedUser(@Body('userId') userId: Types.ObjectId) {
-    return this.userService.bannedUser(userId);
+  bannedUser(@Body() body: BannedUserDTO) {
+    return this.userService.bannedUser(body.userId);
   }
 }

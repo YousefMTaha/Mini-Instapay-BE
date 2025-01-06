@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -13,6 +13,8 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppService } from './app.service';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 @Module({
   imports: [
     AuthModule,
@@ -52,4 +54,8 @@ import { AppService } from './app.service';
   ],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

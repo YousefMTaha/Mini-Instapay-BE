@@ -1,3 +1,3 @@
-import { TokenAndOTPValidator } from 'src/utils/common/common.dto';
+import { TokenAndOTPDTO } from 'src/utils/common/common.dto';
 
-export class ConfirmOTPpasswordDTO extends TokenAndOTPValidator {}
+export class ConfirmOTPpasswordDTO extends TokenAndOTPDTO {}

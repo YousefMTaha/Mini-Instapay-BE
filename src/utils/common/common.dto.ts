@@ -12,6 +12,11 @@ export class OTPDTO {
   otp: string;
 }
 
+export class PINDTO {
+  @Length(6, 6, { message: 'PIN must be 6 characters' })
+  PIN: string;
+}
+
 export class EmailDTO {
   @IsEmail()
   email: string;
@@ -32,7 +37,7 @@ export class ObjectIdDTO {
   id: Types.ObjectId;
 }
 
-export class TokenAndOTPValidator {
+export class TokenAndOTPDTO {
   @Length(6, 6, { message: 'OTP must be 6 characters' })
   otp: string;
 

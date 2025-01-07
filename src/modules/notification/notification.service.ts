@@ -69,7 +69,7 @@ export class NotificationService {
       _id: notifcationId,
     });
 
-    if (!notifcation) throw new NotFoundException('Notification not found');
+    if (!notifcation) throw new NotFoundException('No Notifications yet');
     return notifcation;
   }
 

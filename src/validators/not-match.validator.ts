@@ -4,6 +4,13 @@ import {
   ValidationArguments,
 } from 'class-validator';
 
+/**
+ * Checks if value (new password or OTP) doesn't match the given property (old password or OTP) in the object.
+ *
+ * @param property The property in the object to compare with.
+ * @param validationOptions Optional validation options.
+ * @returns The validation decorator function.
+ */
 export function notMatch(
   property: string,
   validationOptions?: ValidationOptions,

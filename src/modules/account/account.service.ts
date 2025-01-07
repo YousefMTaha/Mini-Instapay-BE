@@ -27,6 +27,7 @@ import { customAlphabet } from 'nanoid';
 import { authForOptions, authTypes } from 'src/utils/Constants/user.constants';
 import { AuthService } from '../auth/auth.service';
 import { MailService } from 'src/utils/email.service';
+import { UpdateLimitDTO } from './dto/update-amount.dto';
 
 @Injectable()
 export class AccountService {
@@ -199,7 +200,7 @@ export class AccountService {
     }
   }
 
-  async updateLimit(account: accountType, body: any) {
+  async updateLimit(account: accountType, body: UpdateLimitDTO) {
     const { amount, type } = body;
 
     const endDate =

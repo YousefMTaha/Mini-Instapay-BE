@@ -21,8 +21,8 @@ import { NotificationService } from 'src/modules/notification/notification.servi
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';
 import { transactionType } from 'src/schemas/transaction.schema';
+import { SendMoneyDTO } from './dto/send-money.dto';
 
-// useFilte(UnHandledExceptions)
 @UseGuards(AuthGuard)
 @Controller('transaction')
 export class TransactionsController {
@@ -35,7 +35,7 @@ export class TransactionsController {
 
   @UseGuards(new AuthorizationGuard(userRoles.User))
   @Post('/send-money')
-  async sendMoney(@currentUser() sender: userType, @Body() body: any) {
+  async sendMoney(@currentUser() sender: userType, @Body() body: SendMoneyDTO) {
     let senderAccount: accountType;
     if (body.accountId) {
       senderAccount = await this.accountService.getAccountById(

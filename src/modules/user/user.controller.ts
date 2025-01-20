@@ -20,16 +20,25 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
+  /**
+   * Get user data
+   */
   @Get()
   getUser(@currentUser() user: userType) {
     return this.userService.getUser(user);
   }
 
+  /**
+   * Update user data
+   */
   @Patch()
   updateUser(@currentUser() user: userType, @Body() body: UpdateUserDTO) {
     return this.userService.updateUser(user, body);
   }
 
+  /**
+   * Change user password
+   */
   @Patch('updatePassword')
   updatePassword(
     @currentUser() userData: userType,
@@ -38,16 +47,25 @@ export class UserController {
     return this.userService.updatePassword(userData, body);
   }
 
+  /**
+   * Update user email
+   */
   @Post('changeEmail')
   updateEmail(@Body() body: EmailDTO, @currentUser() user: userType) {
     return this.authService.changeMail(user, body.email);
   }
 
+  /**
+   * Confirm change email
+   */
   @Patch('confirmChangeEmail')
   confirmChangeEmail(@Body() body: ConfirmChangeEmailDTO) {
     return this.authService.confirmUpdateMail(body.token, body.otp);
   }
 
+  /**
+   * Logout user
+   */
   @Post('logout')
   logout(@currentUser() user: userType) {
     return this.userService.logout(user);
@@ -55,12 +73,18 @@ export class UserController {
 
   // admin
 
+  /**
+   * Get all users
+   */
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Get('admin')
   getAllusers() {
     return this.userService.getAll();
   }
 
+  /**
+   * Banned user
+   */
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Post('admin/banned')
   bannedUser(@Body() body: BannedUserDTO) {

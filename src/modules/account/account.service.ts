@@ -11,7 +11,7 @@ import { userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
 import {
   accountErrMsg,
-  EaccountType,
+  EAccountType,
 } from 'src/utils/Constants/system.constants';
 import { cardType } from 'src/schemas/card.schema';
 import { JwtService } from '@nestjs/jwt';
@@ -20,8 +20,8 @@ import { TransactionsService } from 'src/modules/transactions/transactions.servi
 import { NotificationService } from 'src/modules/notification/notification.service';
 import {
   limitType,
-  ONE_DAY_MILLI,
-  ONE_WEEK_MILLI,
+  ONE_DAY_MILLIE,
+  ONE_WEEK_MILLIE,
 } from 'src/utils/Constants/account.constanta';
 import { customAlphabet } from 'nanoid';
 import { authForOptions, authTypes } from 'src/utils/Constants/user.constants';
@@ -172,7 +172,7 @@ export class AccountService {
 
   async resetTries(token: string) {
     const { accountId } = this.JwtService.verify(token, {
-      secret: this.configService.get<string>('EXCEED_TRYS'),
+      secret: this.configService.get<string>('EXCEED_TRIES'),
     });
 
     const account = await this._accountModel.findByIdAndUpdate(accountId, {
@@ -205,8 +205,8 @@ export class AccountService {
 
     const endDate =
       type == limitType.DAILY
-        ? Date.now() + ONE_DAY_MILLI
-        : Date.now() + ONE_WEEK_MILLI;
+        ? Date.now() + ONE_DAY_MILLIE
+        : Date.now() + ONE_WEEK_MILLIE;
 
     await account.updateOne({
       'limit.amount': amount,
@@ -309,7 +309,7 @@ export class AccountService {
     const account = await this.getAccountById(
       user._id,
       accountId,
-      EaccountType.OWNER,
+      EAccountType.OWNER,
     );
 
     await account.updateOne({ PIN: hashSync(PIN, 10) });

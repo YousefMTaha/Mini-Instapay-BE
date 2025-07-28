@@ -17,7 +17,7 @@ import { MailService } from 'src/utils/email.service';
 import {
   authForOptions,
   authTypes,
-  userstatus,
+  userStatus,
 } from 'src/utils/Constants/user.constants';
 import { customAlphabet } from 'nanoid';
 @Injectable()
@@ -178,7 +178,7 @@ export class AuthService {
     if (!user.confirmEmail)
       throw new BadRequestException('confirm your email first');
 
-    if (user.status == userstatus.Suspended) {
+    if (user.status == userStatus.Suspended) {
       throw new ForbiddenException(
         'Your account has been banned, please contact us',
       );
@@ -198,7 +198,7 @@ export class AuthService {
         value: hashSync(OTP, 9),
       });
     } else {
-      if (user.status === userstatus.Offline) {
+      if (user.status === userStatus.Offline) {
         this.checkForSendOTPDuration(userType.expireAt);
       }
 
@@ -236,7 +236,7 @@ export class AuthService {
 
     const user = await this.userModel.findById(_id);
 
-    if (user.status == userstatus.Suspended) {
+    if (user.status == userStatus.Suspended) {
       throw new ForbiddenException(
         'Your account has been banned, please contact us',
       );
@@ -263,7 +263,7 @@ export class AuthService {
       { secret: this.configService.get<string>('TOKEN_LOGIN') },
     );
 
-    user.status = userstatus.Online;
+    user.status = userStatus.Online;
     await user.save();
 
     return {

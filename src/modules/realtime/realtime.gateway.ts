@@ -19,7 +19,7 @@ export class RealtimeGateway
   constructor(private userService: UserService) {}
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`connection stablished`);
+    console.log(`connection to socket.io success...`);
 
     console.log(client.id);
     this.clientId = client.id;

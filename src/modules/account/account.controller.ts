@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { currentUser } from 'src/decorators/current-user.decortaor';
+import { currentUser } from 'src/decorators/current-user.decorator';
 import { userType } from 'src/schemas/user.schema';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { CardService } from 'src/modules/card/card.service';
-import { EaccountType } from 'src/utils/Constants/system.constants';
+import { EAccountType } from 'src/utils/Constants/system.constants';
 import {
   ObjectIdDTO,
   PINDTO,
@@ -105,7 +105,7 @@ export class AccountController {
     const account = await this.accountService.getAccountById(
       user._id,
       param.id,
-      EaccountType.OWNER,
+      EAccountType.OWNER,
     );
     return this.accountService.updateLimit(account, body);
   }
@@ -123,7 +123,7 @@ export class AccountController {
     const account = await this.accountService.getAccountById(
       user._id,
       param.id,
-      EaccountType.OWNER,
+      EAccountType.OWNER,
     );
     await this.accountService.checkPIN(user, account, body.oldPIN);
     return this.accountService.updatePIN(body, account);
@@ -153,7 +153,7 @@ export class AccountController {
     const account = await this.accountService.getAccountById(
       user._id,
       param.id,
-      EaccountType.OWNER,
+      EAccountType.OWNER,
     );
     return this.accountService.forgetOTPMail(user, account);
   }

@@ -9,5 +9,5 @@ export enum TransactionStatus {
 
 export enum TransactionType {
   SEND = 'Send',
-  RECIEVE = 'Recieve',
+  RECEIVE = 'Receive',
 }

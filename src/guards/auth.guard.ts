@@ -13,7 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/user.schema';
-import { userstatus } from 'src/utils/Constants/user.constants';
+import { userStatus } from 'src/utils/Constants/user.constants';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -41,11 +41,11 @@ export class AuthGuard implements CanActivate {
     const user = await this.userModel.findById(_id, { password: 0 });
     if (!user) throw new NotFoundException('user not found');
 
-    if (user.status == userstatus.Offline) {
+    if (user.status == userStatus.Offline) {
       throw new UnauthorizedException('you need to login again');
     }
 
-    if (user.status == userstatus.Suspended) {
+    if (user.status == userStatus.Suspended) {
       throw new ForbiddenException(
         'Your account has been banned, please contact us',
       );

@@ -49,7 +49,7 @@ export class TransactionsService {
 
     const transaction = await this.transactionModel.create({
       amount,
-      accRecieverId: receiveAcc,
+      accReceiverId: receiveAcc,
       accSenderId: senderAcc,
       type: TransactionType.SEND,
     });
@@ -61,7 +61,7 @@ export class TransactionsService {
     if (!account.checkNoOfTries()) {
       const emailToken = this.JwtService.sign(
         { accountId: account._id },
-        { secret: this.configService.get<string>('EXCEED_TRYS') },
+        { secret: this.configService.get<string>('EXCEED_TRIES') },
       );
       let send = true;
       let sendBefore = false;
@@ -106,7 +106,7 @@ export class TransactionsService {
     const url = `http://localhost:3000/account/verifyAccountUser/${emailToken}`;
     await this.mailService.sendEmail({
       to: email,
-      subject: 'Reset PIN trys',
+      subject: 'Reset PIN tries',
       html: `
       <h1> You entered PIN wrong many times on instapay </h1>
       <h2> we want to ensure that the account owner was trying.</h2>
@@ -161,18 +161,18 @@ export class TransactionsService {
       {
         $lookup: {
           from: 'accounts',
-          localField: 'accRecieverId',
+          localField: 'accReceiverId',
           foreignField: '_id',
-          as: 'accRecieverId',
+          as: 'accReceiverId',
         },
       },
-      { $unwind: '$accRecieverId' },
+      { $unwind: '$accReceiverId' },
       {
         $lookup: {
           from: 'users',
           foreignField: '_id',
-          localField: 'accRecieverId.userId',
-          as: 'reciever',
+          localField: 'accReceiverId.userId',
+          as: 'receiver',
           pipeline: [
             {
               $project: {
@@ -187,16 +187,16 @@ export class TransactionsService {
         },
       },
       { $unwind: '$sender' },
-      { $unwind: '$reciever' },
+      { $unwind: '$receiver' },
       {
         $project: {
           accSenderId: 0,
-          accRecieverId: 0,
+          accReceiverId: 0,
         },
       },
       {
         $match: {
-          $or: [{ 'sender._id': user._id }, { 'reciever._id': user._id }],
+          $or: [{ 'sender._id': user._id }, { 'receiver._id': user._id }],
         },
       },
       {
@@ -221,10 +221,10 @@ export class TransactionsService {
   ) {
     return await this.transactionModel.create({
       accSenderId: senderAcc,
-      accRecieverId: recAcc,
+      accReceiverId: recAcc,
       amount,
       status: TransactionStatus.PENDING,
-      type: TransactionType.RECIEVE,
+      type: TransactionType.RECEIVE,
     });
   }
 
@@ -274,7 +274,7 @@ export class TransactionsService {
     }
   }
 
-  async getAllTransacions() {
+  async getAllTransactions() {
     return await this.transactionModel.aggregate([
       {
         $lookup: {
@@ -307,18 +307,18 @@ export class TransactionsService {
       {
         $lookup: {
           from: 'accounts',
-          localField: 'accRecieverId',
+          localField: 'accReceiverId',
           foreignField: '_id',
-          as: 'accRecieverId',
+          as: 'accReceiverId',
         },
       },
-      { $unwind: '$accRecieverId' },
+      { $unwind: '$accReceiverId' },
       {
         $lookup: {
           from: 'users',
           foreignField: '_id',
-          localField: 'accRecieverId.userId',
-          as: 'reciever',
+          localField: 'accReceiverId.userId',
+          as: 'receiver',
           pipeline: [
             {
               $project: {
@@ -333,11 +333,11 @@ export class TransactionsService {
         },
       },
       { $unwind: '$sender' },
-      { $unwind: '$reciever' },
+      { $unwind: '$receiver' },
       {
         $project: {
           accSenderId: 0,
-          accRecieverId: 0,
+          accReceiverId: 0,
         },
       },
       {
@@ -356,7 +356,7 @@ export class TransactionsService {
         },
       })
       .populate({
-        path: 'accRecieverId',
+        path: 'accReceiverId',
         populate: {
           path: 'userId',
         },
@@ -364,12 +364,12 @@ export class TransactionsService {
 
     if (!transaction) throw new NotFoundException('invalid transaction id');
     if (transaction.status == TransactionStatus.SUSPICIOUS)
-      throw new BadRequestException('tansaction already reported before');
+      throw new BadRequestException('transaction already reported before');
     const senderAccount = transaction.accSenderId as accountType;
     const sender = senderAccount.userId as userType;
 
-    const recieverAccount = transaction.accRecieverId as accountType;
-    const reciever = recieverAccount.userId as userType;
+    const receiverAccount = transaction.accReceiverId as accountType;
+    const receiver = receiverAccount.userId as userType;
 
     await this.mailService.sendEmail({
       to: sender.email,
@@ -434,7 +434,7 @@ export class TransactionsService {
         
         <div class="report-content">
             <p>Your transaction with this information was reported as <span class="highlight">suspicious</span>:</p>
-            <p><span class="info">Send to:</span> ${reciever.email}</p>
+            <p><span class="info">Send to:</span> ${receiver.email}</p>
             <p><span class="info">Amount:</span> ${transaction.amount} EGP</p>
             <p><span class="info">Send time:</span> ${transaction.createdAt}</p>
         </div>
@@ -462,7 +462,7 @@ export class TransactionsService {
     transaction.status = TransactionStatus.REFUNDING;
     await transaction.save();
     return {
-      message: 'Waiting for admin to aprove',
+      message: 'Waiting for admin to approve',
       status: true,
     };
   }
@@ -487,13 +487,13 @@ export class TransactionsService {
   async approveRefund(
     transaction: transactionType,
     senderAcc: accountType,
-    recieverAcc: accountType,
+    receiverAcc: accountType,
   ) {
     senderAcc.Balance += transaction.amount;
     await senderAcc.save();
 
-    recieverAcc.Balance -= transaction.amount;
-    await recieverAcc.save();
+    receiverAcc.Balance -= transaction.amount;
+    await receiverAcc.save();
 
     transaction.status = TransactionStatus.REFUNDED;
     await transaction.save();

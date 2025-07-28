@@ -13,7 +13,6 @@ import { RealtimeModule } from './realtime/realtime.module';
 import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppService } from './app.service';
-import { AuthGuard } from 'src/guards/auth.guard';
 import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 @Module({
   imports: [

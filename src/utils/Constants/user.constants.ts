@@ -3,7 +3,7 @@ export enum userRoles {
   Admin = 'Admin',
 }
 
-export const userstatus = {
+export const userStatus = {
   Online: 'Online',
   Offline: 'Offline',
   Suspended: 'Suspended',

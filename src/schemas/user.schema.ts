@@ -1,11 +1,10 @@
-import { BadRequestException } from '@nestjs/common';
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, Types } from 'mongoose';
 import {
   authForOptions,
   authTypes,
   userRoles,
-  userstatus,
+  userStatus,
 } from 'src/utils/Constants/user.constants';
 import { accountType } from './account.schema';
 
@@ -31,7 +30,7 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true, uniqe: true })
+  @Prop({ required: true, unique: true })
   mobileNumber: string;
 
   @Prop({
@@ -43,8 +42,8 @@ export class User {
 
   @Prop({
     required: true,
-    enum: Object.values(userstatus),
-    default: userstatus.Offline,
+    enum: Object.values(userStatus),
+    default: userStatus.Offline,
   })
   status: string;
 

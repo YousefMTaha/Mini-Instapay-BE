@@ -4,7 +4,7 @@ import { RealtimeGateway } from 'src/modules/realtime/realtime.gateway';
 import { RealtimeModule } from 'src/modules/realtime/realtime.module';
 import { UserModule } from 'src/modules/user/user.module';
 import { UserService } from 'src/modules/user/user.service';
-import { EnotificationType } from 'src/utils/Constants/notification.constants';
+import { ENotificationType } from 'src/utils/Constants/notification.constants';
 
 @Schema({ versionKey: false, timestamps: { updatedAt: false } })
 export class Notification {
@@ -14,7 +14,7 @@ export class Notification {
   @Prop({ ref: 'User', required: true })
   userId: Types.ObjectId;
 
-  @Prop({ enum: EnotificationType, required: true })
+  @Prop({ enum: ENotificationType, required: true })
   type: string;
 
   @Prop({ ref: 'Transaction' })

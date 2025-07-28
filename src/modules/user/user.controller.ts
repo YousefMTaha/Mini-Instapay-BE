@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { currentUser } from 'src/decorators/current-user.decortaor';
+import { currentUser } from 'src/decorators/current-user.decorator';
 import { userType } from 'src/schemas/user.schema';
 import { AuthorizationGuard } from 'src/guards/Authorization.guard';
 import { userRoles } from 'src/utils/Constants/user.constants';

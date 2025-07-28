@@ -4,7 +4,7 @@ import { Document, Types } from 'mongoose';
 import { userType } from './user.schema';
 import {
   limitType,
-  ONE_WEEK_MILLI,
+  ONE_WEEK_MILLIE,
 } from 'src/utils/Constants/account.constanta';
 import { cardType } from './card.schema';
 
@@ -31,7 +31,7 @@ export class Account {
   @Prop({
     type: { type: String, enum: limitType, default: limitType.WEEKLY },
     amount: { type: Number, default: 1000 },
-    endDate: { type: Date, default: Date.now() + ONE_WEEK_MILLI },
+    endDate: { type: Date, default: Date.now() + ONE_WEEK_MILLIE },
     spent: { type: Number, default: 0 },
   })
   limit: {

@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, userType } from 'src/schemas/user.schema';
 import { hashSync, compareSync } from 'bcryptjs';
-import { userRoles, userstatus } from 'src/utils/Constants/user.constants';
+import { userRoles, userStatus } from 'src/utils/Constants/user.constants';
 import { MailService } from 'src/utils/email.service';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UpdatePasswordDTO } from './dto/update-password.dto';
@@ -95,7 +95,7 @@ export class UserService {
 
     await user.updateOne({
       password: hashSync(newPassword, 9),
-      status: userstatus.Offline,
+      status: userStatus.Offline,
     });
 
     return {
@@ -110,7 +110,7 @@ export class UserService {
    * @returns: The updated user data
    */
   async logout(user: userType) {
-    user.status = userstatus.Offline;
+    user.status = userStatus.Offline;
     await user.save();
 
     return {
@@ -165,11 +165,11 @@ export class UserService {
     if (user.role === userRoles.Admin) {
       throw new BadRequestException("You can't banned Admin");
     }
-    if (user.status === userstatus.Suspended) {
+    if (user.status === userStatus.Suspended) {
       throw new BadRequestException('Account already banned');
     }
 
-    user.status = userstatus.Suspended;
+    user.status = userStatus.Suspended;
     await user.save();
 
     await this.mailService.sendEmail({

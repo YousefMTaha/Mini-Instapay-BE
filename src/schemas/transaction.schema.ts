@@ -29,7 +29,7 @@ export class Transaction {
   accSenderId: Types.ObjectId | accountType;
 
   @Prop({ type: Types.ObjectId, ref: 'Account', required: true })
-  accRecieverId: Types.ObjectId | accountType;
+  accReceiverId: Types.ObjectId | accountType;
 
   readonly _id: Types.ObjectId;
   readonly createdAt?: Date;

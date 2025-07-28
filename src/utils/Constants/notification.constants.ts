@@ -1,12 +1,12 @@
-export enum EnotificationType {
+export enum ENotificationType {
   SEND = 'Send',
-  RECIEVE = 'Recieve',
+  RECEIVE = 'Receive',
   REQUEST_SEND = 'Request_Send',
   WRONG_PIN = 'Wrong_PIN',
   REQUEST_REFUND = 'Request_Refund',
   REJECT_REFUND = 'Reject_Refund',
   REFUNDED = 'Refunded',
-  EXCCED_LIMIT = 'Exceed_Limit',
+  EXCEED_LIMIT = 'Exceed_Limit',
   LOW_BALANCE = 'Low_Balance',
 }
 
@@ -18,7 +18,7 @@ export const notificationMsg = ({
   destination?: string;
 } = {}) => {
   return {
-    Recieved: `You have received ${amount} pound from ${destination}.`,
+    Received: `You have received ${amount} pound from ${destination}.`,
     Send: `You send ${amount} pound to ${destination}.`,
     requestSend: `${destination} Wants From you to send ${amount} pound.`,
     ConfirmSend: `You have received a collect request from ${destination}.`,

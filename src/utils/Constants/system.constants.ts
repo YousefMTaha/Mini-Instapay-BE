@@ -1,4 +1,4 @@
-export enum EaccountType {
+export enum EAccountType {
   SENDER = 'Sender',
   RECEIVER = 'Receiver',
   OWNER = 'Owner',
@@ -6,9 +6,9 @@ export enum EaccountType {
 
 export const accountErrMsg = (type: string) => {
   const msg = {
-    [EaccountType.SENDER]: 'No account found for the sender',
-    [EaccountType.RECEIVER]: 'No account found for the receiver',
-    [EaccountType.OWNER]: 'No account found',
+    [EAccountType.SENDER]: 'No account found for the sender',
+    [EAccountType.RECEIVER]: 'No account found for the receiver',
+    [EAccountType.OWNER]: 'No account found',
   };
 
   return msg[type];

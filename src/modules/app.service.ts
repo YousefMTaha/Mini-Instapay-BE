@@ -15,7 +15,7 @@ export class AppService {
     private readonly accountModel: Model<Account>,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async updateLimits() {
     console.log(
       'daily',

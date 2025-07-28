@@ -236,6 +236,9 @@ export class AccountService {
         type: authTypes.CODE,
         authFor: authForOptions.FORGET_PIN,
         value: hashSync(OTP, 9),
+        expireAt: new Date().setMinutes(
+          new Date().getMinutes() + 10,
+        ) as unknown as Date,
       });
     } else {
       this.authService.checkForSendOTPDuration(userType.expireAt);
@@ -249,7 +252,7 @@ export class AccountService {
       to: user.email,
       subject: 'Forget PIN',
       html: `
-                <h1> This is your OTP for Forget PIN, The OTP valid for 10 mintues</h1>
+                <h1> This is your OTP for Forget PIN, The OTP valid for 10 minutes</h1>
                 <h2> ${OTP} </h2>
                 `,
     });

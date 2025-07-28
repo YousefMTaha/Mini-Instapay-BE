@@ -90,6 +90,9 @@ export class TransactionsService {
           authFor: authForOptions.INVALID_PIN,
           type: authTypes.TOKEN,
           value: emailToken,
+          expireAt: new Date().setMinutes(
+            new Date().getMinutes() + 10,
+          ) as unknown as Date,
         });
         await user.save();
       }

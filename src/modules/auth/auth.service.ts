@@ -31,7 +31,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async singup(body: any) {
+  async signup(body: any) {
     const { email, mobileNumber } = body;
 
     const isEmail = await this.userModel.findOne({ email });
@@ -47,7 +47,7 @@ export class AuthService {
     await this.mailService.sendEmail({
       to: email,
       subject: 'Confirm Email',
-      html: `<h1> This is your OTP for confirmation, The OTP valid for 10 mintues</h1>
+      html: `<h1> This is your OTP for confirmation, The OTP valid for 10 min</h1>
           <h2> ${OTP} </h2>
         `,
     });
@@ -146,7 +146,7 @@ export class AuthService {
         await this.mailService.sendEmail({
           to: user.email,
           subject: `resend OTP for ${type}`,
-          html: `<h1> This is your OTP for ${type}, The OTP valid for 10 mintues</h1>
+          html: `<h1> This is your OTP for ${type}, The OTP valid for 10 min</h1>
                 <h2> ${OTP} </h2>
               `,
         });
@@ -166,7 +166,7 @@ export class AuthService {
     }
   }
 
-  async prelogin(body: any) {
+  async preLogin(body: any) {
     const { email, password } = body;
 
     const user = await this.userModel.findOne({ email });
@@ -196,6 +196,9 @@ export class AuthService {
         type: authTypes.CODE,
         authFor: authForOptions.PRE_LOGIN,
         value: hashSync(OTP, 9),
+        expireAt: new Date().setMinutes(
+          new Date().getMinutes() + 10,
+        ) as unknown as Date,
       });
     } else {
       if (user.status === userStatus.Offline) {
@@ -211,7 +214,7 @@ export class AuthService {
     await this.mailService.sendEmail({
       to: email,
       subject: 'Login',
-      html: `<h1> This is your OTP for Login, The OTP valid for 10 mintues</h1>
+      html: `<h1> This is your OTP for Login, The OTP valid for 10 min</h1>
           <h2> ${OTP} </h2>
         `,
     });
@@ -297,7 +300,7 @@ export class AuthService {
     );
 
     if (codeDetails) {
-      // this.checkForSendOTPDuration(codeDetails.expireAt);
+      this.checkForSendOTPDuration(codeDetails.expireAt);
       codeDetails.value = hashSync(OTP, 9);
       codeDetails.expireAt = new Date().setMinutes(
         new Date().getMinutes() + 10,
@@ -313,7 +316,7 @@ export class AuthService {
     await this.mailService.sendEmail({
       to: newEmail,
       subject: 'confirm new email',
-      html: `<h1> This is your OTP for confirm your new email, The OTP valid for 10 mintues</h1>
+      html: `<h1> This is your OTP for confirm your new email, The OTP valid for 10 min</h1>
         <h2> ${OTP} </h2>
       `,
     });
@@ -356,7 +359,7 @@ export class AuthService {
     }
 
     user.email = email;
-    // user.status = userstatus.Offline;
+    user.status = userStatus.Offline;
     user.confirmEmail = true;
 
     await user.save();
@@ -383,6 +386,9 @@ export class AuthService {
         type: authTypes.CODE,
         authFor: authForOptions.FORGET_PASSWORD,
         value: hashSync(OTP, 9),
+        expireAt: new Date().setMinutes(
+          new Date().getMinutes() + 10,
+        ) as unknown as Date,
       });
     } else {
       this.checkForSendOTPDuration(userType.expireAt);
@@ -396,7 +402,7 @@ export class AuthService {
       to: email,
       subject: 'Forget password',
       html: `
-            <h1> This is your OTP for Forget password, The OTP valid for 10 mintues</h1>
+            <h1> This is your OTP for Forget password, The OTP valid for 10 min</h1>
             <h2> ${OTP} </h2>
             `,
     });
@@ -415,7 +421,7 @@ export class AuthService {
     };
   }
 
-  async confirmOTPpassword(token: string, otp: string) {
+  async confirmOTPPassword(token: string, otp: string) {
     const { _id } = this.jwtService.verify(token, {
       secret: this.configService.get<string>('TOKEN_FORGET_PASSWORD'),
     });

@@ -7,19 +7,19 @@ import { EmailDTO, OTPDTO } from 'src/utils/common/common.dto';
 import { VerifyEmailDTO } from './dto/verify-email.dto';
 import { ResendMailDTO } from './dto/resend-email.dto';
 import { LoginDTO } from './dto/login.dto';
-import { ConfirmOTPpasswordDTO } from './dto/confirm-otp-password.dto';
+import { ConfirmOTPPasswordDTO } from './dto/confirm-otp-password.dto';
 import { ForgetPasswordDTO } from './dto/forget-password.dto';
 import { UpdateEmailDTO } from './dto/update-email.dto';
 import { ConfirmChangeEmailDTO } from './dto/confirm-change-email.dto';
 
 @Controller('auth')
-// useFilte(UnHandledExceptions)
+// useFilter(UnHandledExceptions)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  singup(@Body() body: SignupDTO) {
-    return this.authService.singup(body);
+  signup(@Body() body: SignupDTO) {
+    return this.authService.signup(body);
   }
 
   @Post('verifyEmail')
@@ -34,7 +34,7 @@ export class AuthController {
 
   @Post('preLogin')
   preLogin(@Body() body: PreLoginDTO) {
-    return this.authService.prelogin(body);
+    return this.authService.preLogin(body);
   }
 
   @Post('login')
@@ -48,8 +48,8 @@ export class AuthController {
   }
 
   @Post('confirm-otp-forget')
-  confirmOTPpassword(@Body() body: ConfirmOTPpasswordDTO) {
-    return this.authService.confirmOTPpassword(body.token, body.otp);
+  confirmOTPPassword(@Body() body: ConfirmOTPPasswordDTO) {
+    return this.authService.confirmOTPPassword(body.token, body.otp);
   }
 
   @Post('forget-password')

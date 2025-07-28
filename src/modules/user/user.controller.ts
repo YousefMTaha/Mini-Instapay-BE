@@ -78,7 +78,7 @@ export class UserController {
    */
   @UseGuards(new AuthorizationGuard(userRoles.Admin))
   @Get('admin')
-  getAllusers() {
+  getAllUsers() {
     return this.userService.getAll();
   }
 

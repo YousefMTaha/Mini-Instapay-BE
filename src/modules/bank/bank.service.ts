@@ -12,5 +12,4 @@ export class BankService {
     return await this._bankModel.find();
   }
 
-  // async checkBankId() {}
 }

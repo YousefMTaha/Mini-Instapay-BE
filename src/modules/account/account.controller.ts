@@ -163,7 +163,7 @@ export class AccountController {
    * Requires token and OTP from request body.
    */
   @Post('confirmOTPforgetPIN')
-  async confirmOTPforgetPIN(
+  async confirmOTPForgetPIN(
     @currentUser() user: userType,
     @Body() body: TokenAndOTPDTO,
   ) {

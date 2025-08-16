@@ -51,7 +51,7 @@ To run this project, you will need to add the following environment variables to
 
 ```env
 MAIL_USER_NAME=tyousef262@gmail.com
-MAIL_PASSWORD=itzz xbkn ohyz abda
+MAIL_PASSWORD=pngu mkjw kafq ylxf
 TOKEN_SIGNUP=THIS TOKEN FOR SIGNUP
 TOKEN_LOGIN=THIS TOKEN FOR LOGIN
 TOKEN_PRE_LOGIN=THIS TOKEN FOR PRE LOGIN
